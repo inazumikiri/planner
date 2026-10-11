@@ -1,6 +1,6 @@
 // Офлайн-режим: приложение целиком хранится на устройстве.
 // При каждом обновлении приложения меняется номер версии ниже.
-const VERSION = 'moyden-v1';
+const VERSION = 'moyden-v2';
 const ASSETS = [
   './', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',

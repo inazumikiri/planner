@@ -1,16 +1,29 @@
 -- «Мой день»: облако для синхронизации.
 -- Вставь весь этот текст в Supabase → SQL Editor → New query и нажми Run.
 
--- 1. Таблица для всех записей приложения (задачи, а потом рутина, дневник и остальное)
+-- 1. Таблица для всех записей приложения: задачи, рутина, календарь, дневник, покупки
 create table if not exists public.items (
-  id         text primary key,
+  id         text not null,
   user_id    uuid not null default auth.uid() references auth.users(id) on delete cascade,
   kind       text not null,
   data       jsonb not null default '{}'::jsonb,
   updated    bigint not null default 0,
   deleted    boolean not null default false,
-  server_ts  timestamptz not null default now()
+  server_ts  timestamptz not null default now(),
+  primary key (user_id, id)
 );
+-- если таблица уже была создана прошлой версией скрипта, ключ обновится здесь
+do $$
+begin
+  if exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.items'::regclass and contype = 'p' and array_length(conkey, 1) = 1
+  ) then
+    execute 'alter table public.items drop constraint ' || (
+      select conname from pg_constraint where conrelid = 'public.items'::regclass and contype = 'p');
+    alter table public.items add primary key (user_id, id);
+  end if;
+end $$;
 create index if not exists items_user_ts on public.items (user_id, server_ts, id);
 
 -- 2. Каждая видит только свои записи
