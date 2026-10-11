@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мой день</title>
+<meta name="theme-color" content="#F5F3EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16161B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Мой день">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<script src="config.js"></script>
+<style>
+@font-face{font-family:'Jost';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/jost-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Jost';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/jost-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/jost-cyrillic-500-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Jost';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/jost-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/jost-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Jost';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/jost-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  --bg:#F5F3EE; --surface:#FFFFFF; --ink:#24263A; --ink-2:#6B6C7E; --ink-3:#A3A3B0; --line:#E3E0D8;
+  --q1:#E85A4B; --q1-t:#FDE8E5;
+  --q2:#3F82EA; --q2-t:#E6EFFD;
+  --q3:#DB9A12; --q3-t:#FCF2D9;
+  --q4:#8E8EA0; --q4-t:#EEEEF2;
+  --mint:#46B37E; --mint-t:#DDF3E7; --lav:#8577D4;
+  --shadow:0 1px 2px rgba(36,38,58,.05),0 8px 24px rgba(36,38,58,.06);
+  --r-lg:26px;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16161B; --surface:#222229; --ink:#ECEBF2; --ink-2:#A4A4B3; --ink-3:#6E6E7C; --line:#33333D;
+    --q1:#F07466; --q1-t:#3B2422;
+    --q2:#5E97F2; --q2-t:#1E2A3D;
+    --q3:#E7AE35; --q3-t:#3A311E;
+    --q4:#9C9CAE; --q4-t:#2B2B33;
+    --mint:#5CC892; --mint-t:#1C3328; --lav:#9D91E6;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16161B; --surface:#222229; --ink:#ECEBF2; --ink-2:#A4A4B3; --ink-3:#6E6E7C; --line:#33333D;
+  --q1:#F07466; --q1-t:#3B2422;
+  --q2:#5E97F2; --q2-t:#1E2A3D;
+  --q3:#E7AE35; --q3-t:#3A311E;
+  --q4:#9C9CAE; --q4-t:#2B2B33;
+  --mint:#5CC892; --mint-t:#1C3328; --lav:#9D91E6;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font:400 16px/1.4 'Jost',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body.locked{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
+svg{display:block;flex:none}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);pointer-events:none}
+
+/* ---------- layout ---------- */
+.app{max-width:640px;margin:0 auto;padding:18px 16px 150px}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none;
+  padding:0 12px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,var(--bg) 55%,rgba(0,0,0,0))}
+.brand{display:none}
+.tabbar{pointer-events:auto;max-width:560px;margin:0 auto;display:flex;background:var(--surface);border-radius:32px;padding:6px;
+  box-shadow:0 2px 6px rgba(36,38,58,.06),0 12px 32px rgba(36,38,58,.10)}
+.tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;border-radius:24px;
+  color:var(--ink-2);font-size:11.5px;font-weight:500}
+.tab svg{width:24px;height:24px}
+.tab.on{background:var(--bg);color:var(--ink)}
+.fab{pointer-events:auto;position:absolute;right:20px;bottom:calc(100% + 4px);width:60px;height:60px;border-radius:50%;
+  background:var(--ink);color:var(--surface);display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(36,38,58,.28)}
+.fab svg{width:26px;height:26px}
+.dock[data-tab]:not([data-tab="tasks"]) .fab{display:none}
+
+/* ---------- header ---------- */
+.hello{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:6px 4px 18px}
+.hello h1{font-size:34px;line-height:1.05;font-weight:600;letter-spacing:-.01em;margin:0}
+.today{margin:6px 0 0;color:var(--ink-2);font-size:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink-3);padding:4px 0}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.sync.cloud i{background:var(--mint)}
+.sync.offline i{background:var(--q1)}
+.done-today{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:9px 15px;
+  font-weight:600;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.done-today svg{color:var(--mint)}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;align-items:center;gap:8px;margin:0 0 14px}
+.pill{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--surface);
+  box-shadow:var(--shadow);font-weight:500;white-space:nowrap}
+.pill svg{color:var(--mint)}
+.pill.on{background:var(--mint-t);box-shadow:inset 0 0 0 1.5px var(--mint)}
+.pill.new-desktop{display:none;background:var(--ink);color:var(--surface)}
+.pill.new-desktop svg{color:var(--surface)}
+.seg{margin-left:auto;display:flex;background:var(--surface);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
+.seg button{width:44px;height:36px;border-radius:999px;display:grid;place-items:center;color:var(--ink-3)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+
+/* ---------- quadrants ---------- */
+.quads{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quad{background:var(--surface);border-radius:var(--r-lg);padding:14px 10px 12px;min-height:200px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column}
+.quad-head{display:flex;align-items:center;gap:8px;padding:0 2px 10px}
+.qicon{width:30px;height:30px;border-radius:50%;background:var(--t);color:var(--c);display:grid;place-items:center;flex:none}
+.quad h2{font-size:15.5px;line-height:1.15;font-weight:600;margin:0;flex:1;min-width:0}
+.qcount{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.qadd{width:32px;height:32px;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.qempty{margin:auto 0;text-align:center;color:var(--ink-3);font-size:14px;padding:12px 0}
+
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.task{display:flex;align-items:flex-start;gap:9px;background:var(--t);border-radius:14px;padding:9px 10px 9px 9px}
+.check{position:relative;width:24px;height:24px;border-radius:50%;border:2px solid var(--c);display:grid;place-items:center;
+  color:transparent;flex:none;margin-top:1px;transition:background .15s,color .15s}
+.check::after{content:'';position:absolute;inset:-10px}
+.check svg{width:14px;height:14px}
+.task.done .check,.check[aria-pressed="true"]{background:var(--c);color:#fff}
+.t-body{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:3px}
+.t-title{font-size:15px;line-height:1.25;font-weight:500;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden}
+.task.done .t-title{text-decoration:line-through;color:var(--ink-2)}
+.t-meta{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:12.5px;color:var(--ink-2);align-items:center}
+.t-meta span{display:inline-flex;align-items:center;gap:3px}
+.t-meta svg{width:13px;height:13px}
+.m-late{color:var(--q1);font-weight:500}
+.m-q{color:var(--c);font-weight:500}
+
+/* ---------- list view ---------- */
+.group{margin:0 0 18px}
+.group h3{font-size:15px;font-weight:600;color:var(--ink-2);margin:0 8px 8px;display:flex;gap:8px}
+.group h3 span{color:var(--ink-3);font-weight:500}
+.group h3.late{color:var(--q1)}
+.group .tlist{background:var(--surface);border-radius:var(--r-lg);padding:8px;box-shadow:var(--shadow);gap:8px}
+.group .task{padding:12px}
+.group .t-title{font-size:16px}
+.empty{background:var(--surface);border-radius:var(--r-lg);padding:28px 22px;box-shadow:var(--shadow);color:var(--ink-2);font-size:16px}
+.loading-msg{color:var(--ink-3);padding:30px 6px}
+
+/* ---------- placeholder screens ---------- */
+.soon{padding:24px 6px}
+.soon h1{font-size:34px;font-weight:600;margin:6px 0 12px;letter-spacing:-.01em}
+.soon p{font-size:17px;color:var(--ink-2);max-width:36ch;margin:0 0 16px}
+.soon .tag{display:inline-block;background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;color:var(--ink-2);box-shadow:var(--shadow)}
+
+/* ---------- sheet ---------- */
+.sheet-wrap{position:fixed;inset:0;z-index:50}
+.backdrop{position:absolute;inset:0;background:rgba(22,22,30,.38);opacity:0;transition:opacity .22s}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:calc(100% - 28px - env(safe-area-inset-top,0px));overflow:auto;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--surface);border-radius:28px 28px 0 0;
+  padding:8px 18px calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(100%);
+  transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+.sheet-wrap.open .backdrop{opacity:1}
+.sheet-wrap.open .sheet{transform:none}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:2px auto 12px}
+.s-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.check.big{width:30px;height:30px;margin-top:5px}
+.check.big svg{width:17px;height:17px}
+.title-input{flex:1;min-width:0;border:0;background:none;resize:none;font-size:22px;font-weight:600;line-height:1.25;
+  padding:4px 0;outline:none;min-height:36px;overflow:hidden}
+.title-input::placeholder,.sub-add input::placeholder,.sub-title::placeholder,textarea::placeholder{color:var(--ink-3)}
+.icon-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);background:var(--bg);flex:none}
+.qpick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.qchip{display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:14px;background:var(--bg);font-size:15px;
+  font-weight:500;text-align:left;color:var(--ink-2)}
+.qchip svg{color:var(--c);width:18px;height:18px}
+.qchip.on{background:var(--t);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--c)}
+.when{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:14px}
+.fld{display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:var(--ink-2);font-weight:500}
+.fld input{-webkit-appearance:none;appearance:none;border:0;background:var(--bg);border-radius:12px;height:44px;padding:0 12px;
+  font-size:16px;color:var(--ink);min-width:0;display:block}
+.fld input[type=date]{width:168px}
+.fld input[type=time]{width:112px}
+.chip-btn{height:44px;padding:0 14px;border-radius:12px;background:var(--bg);font-size:15px;color:var(--ink-2)}
+.fld.block{margin-bottom:16px}
+.fld textarea,.sub-note{border:0;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.45;
+  resize:none;outline:none;width:100%;color:var(--ink);min-height:72px;overflow:hidden;font-weight:400}
+.blk{margin-bottom:16px}
+.blk-h{font-size:13.5px;color:var(--ink-2);font-weight:500;margin:0 0 6px;display:flex;justify-content:space-between}
+.photos{display:flex;flex-wrap:wrap;gap:8px}
+.ph{width:78px;height:78px;border-radius:14px;overflow:hidden;background:var(--bg);position:relative;display:grid;place-items:center}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph.add{border:1.5px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:12.5px;color:var(--ink-2);cursor:pointer;background:none}
+.ph.loading::after{content:'';width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--ink-2);
+  animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.subs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sub{background:var(--bg);border-radius:14px;padding:4px 4px 4px 12px}
+.sub-row{display:flex;align-items:center;gap:10px}
+.check.sm{width:22px;height:22px;margin-top:0}
+.check.sm svg{width:13px;height:13px}
+.sub-title{flex:1;min-width:0;border:0;background:none;font-size:16px;padding:9px 0;outline:none}
+.sub.done .sub-title{text-decoration:line-through;color:var(--ink-2)}
+.sub .icon-btn{background:none;width:36px;height:36px;color:var(--ink-3)}
+.sub .icon-btn.has{color:var(--c)}
+.sub.open .icon-btn svg{transform:rotate(180deg)}
+.sub.open .icon-btn.has svg{transform:none}
+.sub-detail{padding:2px 8px 10px 32px;display:flex;flex-direction:column;gap:8px}
+.sub-detail .sub-note{background:var(--surface);min-height:58px}
+.sub-detail .ph{background:var(--surface)}
+.link-danger{align-self:flex-start;color:var(--q1);font-size:14.5px;padding:4px 0}
+.sub-add{display:flex;align-items:center;gap:10px;margin-top:6px;padding:0 12px;border-radius:14px;border:1.5px dashed var(--line);color:var(--ink-3)}
+.sub-add input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:16px;padding:12px 0;color:var(--ink)}
+.s-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px}
+.primary{height:50px;padding:0 30px;border-radius:999px;background:var(--ink);color:var(--surface);font-weight:600;font-size:16px}
+.danger{height:50px;padding:0 16px;border-radius:999px;color:var(--q1);font-weight:500}
+.danger.arm{background:var(--q1);color:#fff}
+
+@media (min-width:700px){
+  .sheet{left:50%;top:50%;bottom:auto;right:auto;width:min(580px,calc(100% - 48px));max-height:88vh;border-radius:28px;
+    padding:20px 24px 22px;transform:translate(-50%,-46%);opacity:0;transition:transform .22s,opacity .22s}
+  .sheet-wrap.open .sheet{transform:translate(-50%,-50%);opacity:1}
+  .grab{display:none}
+}
+
+/* ---------- lightbox & toast ---------- */
+.lightbox{position:fixed;inset:0;z-index:80;background:rgba(10,10,14,.94);display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.lb-bar{display:flex;justify-content:space-between;gap:10px;padding:12px 16px}
+.lb-bar button{color:#fff;font-size:16px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.14)}
+.lb-bar button.arm{background:#E85A4B}
+.lightbox img{flex:1;min-height:0;width:100%;object-fit:contain}
+.toast-wrap{position:fixed;top:0;left:0;right:0;z-index:90;padding-top:calc(10px + env(safe-area-inset-top,0px));
+  display:flex;justify-content:center;pointer-events:none}
+#toast{max-width:min(92vw,440px);background:var(--ink);color:var(--surface);padding:11px 18px;border-radius:16px;font-size:15px;
+  opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s;text-align:center}
+#toast.show{opacity:1;transform:none}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  .app{max-width:1120px;margin:0 auto 0 248px;padding:36px 40px 60px}
+  .dock{top:0;bottom:0;left:0;right:auto;width:248px;background:none;display:flex;flex-direction:column;
+    padding:calc(30px + env(safe-area-inset-top,0px)) 16px calc(20px + env(safe-area-inset-bottom,0px))}
+  .brand{display:block;font-size:22px;font-weight:600;padding:0 14px 20px;letter-spacing:-.01em}
+  .tabbar{flex-direction:column;border-radius:var(--r-lg);gap:4px;padding:10px;margin:0;max-width:none;box-shadow:var(--shadow)}
+  .tab{flex:none;flex-direction:row;gap:12px;padding:12px 14px;font-size:16px;justify-content:flex-start;border-radius:16px}
+  .fab{display:none}
+  .pill.new-desktop{display:inline-flex}
+  .hello h1{font-size:44px}
+  .quads{gap:16px}
+  .quad{min-height:300px;padding:18px 14px 14px}
+  .quad h2{font-size:18px}
+  .qicon{width:34px;height:34px}
+  .t-title{font-size:15.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .sheet,.backdrop,#toast,.check{transition:none}
+  .ph.loading::after{animation-duration:2.4s}
+}
+
+/* ---------- offline version additions ---------- */
+.hello-right{display:flex;align-items:center;gap:8px;flex:none}
+.hello .icon-btn{background:var(--surface);box-shadow:var(--shadow);width:42px;height:42px;color:var(--ink-2)}
+.sync.st-ok i{background:var(--mint)}
+.sync.st-syncing i{background:var(--lav);animation:pulse 1.2s ease-in-out infinite}
+.sync.st-error i,.sync.st-relogin i{background:var(--q1)}
+.sync.st-relogin{color:var(--q1)}
+@keyframes pulse{50%{opacity:.25}}
+.ph .ph-ph{color:var(--ink-3)}
+.ph img{position:absolute;inset:0}
+.ph img:not([src]){display:none}
+.lb-miss{color:#fff;text-align:center;margin:auto;padding:24px;font-size:17px;max-width:30ch}
+.s-title{flex:1;margin:4px 0 0;font-size:22px;font-weight:600}
+.set-status{margin:0 0 8px}
+.set-status .sync{font-size:15px;color:var(--ink-2)}
+.set-note{color:var(--ink-2);font-size:15.5px;margin:0 0 18px;max-width:46ch}
+.set-card{background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:18px}
+.set-label{font-size:13.5px;color:var(--ink-2)}
+.set-val{font-size:17px;font-weight:500;overflow-wrap:anywhere}
+.set-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ghost{height:50px;padding:0 22px;border-radius:999px;background:var(--bg);font-weight:500}
+.set-err{color:var(--q1);font-size:15px;margin:0 0 12px}
+.set-err:empty{display:none}
+.fld.block input{width:100%}
+button:disabled{opacity:.5;cursor:default}
+@media (prefers-reduced-motion:reduce){.sync.st-syncing i{animation:none}}
+</style>
+</head>
+<body>
+<main class="app" id="view"></main>
+<div class="dock" id="dock">
+  <div class="brand">Мой день</div>
+  <button class="fab" id="fab" aria-label="Новая задача"></button>
+  <nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+</div>
+<div id="sheet-root"></div>
+<div class="toast-wrap"><div id="toast" role="status" aria-live="polite"></div></div>
+<script>
+(function(){
+'use strict';
+
+/* ================= helpers ================= */
+const $ = (s, el) => (el || document).querySelector(s);
+const $$ = (s, el) => [...(el || document).querySelectorAll(s)];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : newId() + newId();
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = () => ymd(new Date());
+const parseYmd = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate() + n); return ymd(d); };
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function pref(k, def){ try{ const v = localStorage.getItem('moyden.' + k); return v == null ? def : JSON.parse(v); }catch(e){ return def; } }
+function setPref(k, v){ try{ if (v == null) localStorage.removeItem('moyden.' + k); else localStorage.setItem('moyden.' + k, JSON.stringify(v)); }catch(e){} }
+
+function I(p, size, filled, sw){
+  size = size || 20;
+  const paint = filled ? 'fill="currentColor"'
+    : 'fill="none" stroke="currentColor" stroke-width="' + (sw || 2) + '" stroke-linecap="round" stroke-linejoin="round"';
+  return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" ' + paint + ' aria-hidden="true">' + p + '</svg>';
+}
+const ICON = {
+  flame: I('<path d="M12.6 2.5c.4 3.1 2.2 4.6 3.6 6.2 1.3 1.5 2.3 3 2.3 5.3A6.5 6.5 0 0 1 12 20.5 6.5 6.5 0 0 1 5.5 14c0-2.6 1.3-4.3 2.7-5.6.2 1.8 1.1 3 2.4 3.4-.3-3.6.3-6.6 2-9.3z"/>', 16, true),
+  cal: I('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', 16),
+  bolt: I('<path d="M13.5 2 4.5 13.5h6.5L10 22l9.5-12H13z"/>', 16, true),
+  lines: I('<path d="M5 7h14M5 12h14M5 17h9"/>', 16),
+  plus: I('<path d="M12 5v14M5 12h14"/>', 18, false, 2.2),
+  tick: I('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 14, false, 3),
+  checkCircle: I('<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/>', 18),
+  grid: I('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>', 18),
+  list: I('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor" stroke="none"/>', 18),
+  subs: I('<path d="M10 6h10M10 12h10M10 18h10M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5"/>', 13),
+  photo: I('<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 8"/>', 13),
+  photoBig: I('<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 8"/>', 22, false, 1.6),
+  note: I('<path d="M6 4h9l4 4v12H6z"/><path d="M9 12h7M9 16h5"/>', 13),
+  noteBig: I('<path d="M6 4h9l4 4v12H6z"/><path d="M9 12h7M9 16h5"/>', 18),
+  camera: I('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', 22, false, 1.8),
+  chev: I('<path d="m7 10 5 5 5-5"/>', 18),
+  close: I('<path d="M6 6l12 12M18 6 6 18"/>', 18),
+  check: I('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 16, false, 2.6),
+  cloud: I('<path d="M7.5 18.5h9.2a4.3 4.3 0 0 0 .5-8.6 6 6 0 0 0-11.4 1.6 3.6 3.6 0 0 0 1.7 7z"/>', 20, false, 1.8),
+  tTasks: I('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>', 24, false, 1.8),
+  tRoutine: I('<path d="m4 7 2 2 3-3M4 16l2 2 3-3M12 8h8M12 17h8"/>', 24, false, 1.8),
+  tCal: I('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="8.5" cy="14.5" r=".9" fill="currentColor"/><circle cx="12" cy="14.5" r=".9" fill="currentColor"/><circle cx="15.5" cy="14.5" r=".9" fill="currentColor"/>', 24, false, 1.8),
+  tDiary: I('<path d="M5.5 4H16a3 3 0 0 1 3 3v13.5H8.5a3 3 0 0 1-3-3z"/><path d="M5.5 17.5a3 3 0 0 1 3-3H19M9.5 8h5"/>', 24, false, 1.8),
+  tShop: I('<path d="M4 9h16l-1.6 10.5H5.6z"/><path d="M8.5 9 12 4l3.5 5"/>', 24, false, 1.8)
+};
+const Q = {
+  1: { name: 'Важно и срочно', icon: ICON.flame },
+  2: { name: 'Важно', icon: ICON.cal },
+  3: { name: 'Срочно', icon: ICON.bolt },
+  4: { name: 'Когда-нибудь', icon: ICON.lines }
+};
+const qStyle = q => '--c:var(--q' + q + ');--t:var(--q' + q + '-t)';
+
+function fmtDate(s){
+  if (!s) return '';
+  const t = today();
+  if (s === t) return 'Сегодня';
+  if (s === addDays(t, 1)) return 'Завтра';
+  if (s === addDays(t, -1)) return 'Вчера';
+  const d = parseYmd(s);
+  const o = d.getFullYear() === new Date().getFullYear() ? { day: 'numeric', month: 'long' } : { day: 'numeric', month: 'long', year: 'numeric' };
+  return d.toLocaleDateString('ru-RU', o);
+}
+
+/* ================= state ================= */
+const TABS = [
+  ['tasks', 'Задачи', ICON.tTasks],
+  ['routine', 'Рутина', ICON.tRoutine],
+  ['calendar', 'Календарь', ICON.tCal],
+  ['diary', 'Дневник', ICON.tDiary],
+  ['shop', 'Покупки', ICON.tShop]
+];
+const S = { loaded: false, tasks: new Map(), recent: new Set(), sync: 'local' };
+const UI = { tab: pref('tab', 'tasks'), view: pref('view', 'grid'), showDone: !!pref('showDone', false) };
+if (!TABS.some(t => t[0] === UI.tab)) UI.tab = 'tasks';
+if (UI.view !== 'grid' && UI.view !== 'list') UI.view = 'grid';
+
+function blankTask(p){
+  p = p || {};
+  return { id: uuid(), title: '', q: p.q || 2, done: false, doneAt: null, date: p.date || null, time: null,
+    note: '', photos: [], subs: [], created: Date.now() };
+}
+const strArr = a => Array.isArray(a) ? a.filter(x => typeof x === 'string') : [];
+function norm(t){
+  const q = [1, 2, 3, 4].indexOf(t.q) >= 0 ? t.q : 2;
+  return Object.assign(blankTask(), t, {
+    q: q, title: String(t.title || ''), note: String(t.note || ''), done: !!t.done,
+    date: t.date || null, time: t.time || null, photos: strArr(t.photos),
+    subs: Array.isArray(t.subs) ? t.subs.map(s => ({ id: String(s.id || newId()), title: String(s.title || ''),
+      done: !!s.done, note: String(s.note || ''), photos: strArr(s.photos) })) : []
+  });
+}
+
+/* ================= device storage (IndexedDB) ================= */
+let idb = null;
+const mem = { items: new Map(), photos: new Map(), meta: new Map() };
+function idbOpen(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('moyden', 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('items')) d.createObjectStore('items', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('photos')) d.createObjectStore('photos', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta');
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+    r.onblocked = () => rej(new Error('blocked'));
+  });
+}
+const reqP = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const txDone = t => new Promise((res, rej) => { t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); });
+async function dbGet(store, key){ if (!idb) return mem[store].get(key); return reqP(idb.transaction(store).objectStore(store).get(key)); }
+async function dbAll(store){ if (!idb) return [...mem[store].values()]; return reqP(idb.transaction(store).objectStore(store).getAll()); }
+async function dbPut(store, val, key){
+  if (!idb){ mem[store].set(key !== undefined ? key : val.id, val); return; }
+  const t = idb.transaction(store, 'readwrite');
+  if (key === undefined) t.objectStore(store).put(val); else t.objectStore(store).put(val, key);
+  return txDone(t);
+}
+async function dbDel(store, key){
+  if (!idb){ mem[store].delete(key); return; }
+  const t = idb.transaction(store, 'readwrite'); t.objectStore(store).delete(key); return txDone(t);
+}
+async function dbClear(){
+  if (!idb){ mem.items.clear(); mem.photos.clear(); mem.meta.clear(); return; }
+  const t = idb.transaction(['items', 'photos', 'meta'], 'readwrite');
+  ['items', 'photos', 'meta'].forEach(s => t.objectStore(s).clear());
+  return txDone(t);
+}
+
+async function loadAll(){
+  const items = await dbAll('items');
+  const m = new Map();
+  items.forEach(it => { if (it.kind === 'task' && !it.deleted) m.set(it.id, norm(Object.assign({}, it.data, { id: it.id }))); });
+  S.tasks = m;
+  S.loaded = true;
+}
+async function saveItem(id, kind, data, deleted){
+  try{ await dbPut('items', { id: id, kind: kind, data: data, updated: Date.now(), deleted: !!deleted, dirty: true }); }
+  catch(e){ toast('Не получилось сохранить на устройстве. Освободи место и попробуй ещё раз.'); }
+  scheduleSync();
+}
+function persist(task){
+  const data = JSON.parse(JSON.stringify(task));
+  S.tasks.set(data.id, data);
+  render();
+  saveItem(data.id, 'task', data, false);
+}
+function removeTask(id){
+  const t = S.tasks.get(id);
+  if (t){ t.photos.forEach(removePhoto); t.subs.forEach(s => s.photos.forEach(removePhoto)); }
+  S.tasks.delete(id);
+  render();
+  saveItem(id, 'task', {}, true);
+}
+
+/* ================= photos ================= */
+const urlCache = new Map();
+function compress(file, max, q){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * s)), h = Math.max(1, Math.round(img.naturalHeight * s));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      cv.toBlob(b => b ? resolve(b) : reject(new Error('encode')), 'image/jpeg', q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode')); };
+    img.src = url;
+  });
+}
+async function addPhotoFile(file){
+  let blob;
+  try{ blob = await compress(file, 1600, 0.82); }
+  catch(e){
+    if (/^image\/(jpeg|png|webp)$/.test(file.type)) blob = file;
+    else throw new Error('decode');
+  }
+  const type = blob.type || 'image/jpeg';
+  const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+  const id = uuid() + '.' + ext;
+  const buf = await blob.arrayBuffer();
+  await dbPut('photos', { id: id, type: type, buf: buf, state: 'local' });
+  urlCache.set(id, URL.createObjectURL(new Blob([buf], { type: type })));
+  scheduleSync();
+  return id;
+}
+async function photoURL(id){
+  if (urlCache.has(id)) return urlCache.get(id);
+  let rec = null;
+  try{ rec = await dbGet('photos', id); }catch(e){}
+  if (rec && rec.state === 'delete') return null;
+  if (rec && rec.buf){
+    const u = URL.createObjectURL(new Blob([rec.buf], { type: rec.type || 'image/jpeg' }));
+    urlCache.set(id, u); return u;
+  }
+  if (!canReachServer()) return null;
+  try{
+    await ensureToken();
+    const r = await api('/storage/v1/object/authenticated/photos/' + session.user.id + '/' + encodeURIComponent(id));
+    const blob = await r.blob();
+    const buf = await blob.arrayBuffer();
+    const type = blob.type || 'image/jpeg';
+    await dbPut('photos', { id: id, type: type, buf: buf, state: 'synced' });
+    const u = URL.createObjectURL(new Blob([buf], { type: type }));
+    urlCache.set(id, u); return u;
+  }catch(e){ return null; }
+}
+async function removePhoto(id){
+  if (urlCache.has(id)){ URL.revokeObjectURL(urlCache.get(id)); urlCache.delete(id); }
+  try{
+    const rec = await dbGet('photos', id);
+    if (rec && rec.state === 'local') await dbDel('photos', id);
+    else await dbPut('photos', { id: id, type: '', buf: null, state: 'delete' });
+  }catch(e){}
+  scheduleSync();
+}
+
+/* ================= cloud sync (Supabase) ================= */
+const BAKED = window.MOYDEN_CONFIG || {};
+const hasBaked = () => !!(BAKED.url && BAKED.key);
+function cfg(){
+  const local = pref('cfg', {}) || {};
+  return { url: String(BAKED.url || local.url || '').trim().replace(/\/+$/, ''), key: String(BAKED.key || local.key || '').trim() };
+}
+let session = pref('session', null);
+const canReachServer = () => !!(session && cfg().url && navigator.onLine);
+
+function httpError(r, j){
+  const e = new Error((j && (j.error_description || j.msg || j.message || j.error)) || ('HTTP ' + r.status));
+  e.status = r.status;
+  return e;
+}
+async function api(path, opts){
+  opts = opts || {};
+  const c = cfg();
+  const headers = Object.assign({ apikey: c.key, Authorization: 'Bearer ' + session.access_token }, opts.headers || {});
+  const r = await fetch(c.url + path, Object.assign({}, opts, { headers: headers }));
+  if (!r.ok){ let j = null; try{ j = await r.json(); }catch(e){} throw httpError(r, j); }
+  return r;
+}
+async function authRequest(path, body){
+  const c = cfg();
+  const r = await fetch(c.url + '/auth/v1/' + path, {
+    method: 'POST', headers: { apikey: c.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  let j = null; try{ j = await r.json(); }catch(e){}
+  if (!r.ok) throw httpError(r, j);
+  return j;
+}
+function setSession(j){
+  session = {
+    access_token: j.access_token, refresh_token: j.refresh_token,
+    expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600),
+    user: { id: j.user.id, email: j.user.email }
+  };
+  setPref('session', session);
+}
+async function signIn(email, password){ setSession(await authRequest('token?grant_type=password', { email: email, password: password })); }
+async function signUp(email, password){
+  const j = await authRequest('signup', { email: email, password: password });
+  if (j && j.access_token){ setSession(j); return 'ok'; }
+  return 'confirm';
+}
+let refreshing = null;
+async function ensureToken(force){
+  if (!session) throw Object.assign(new Error('no session'), { status: 401 });
+  if (!force && session.expires_at - 90 > Date.now() / 1000) return;
+  if (!refreshing){
+    refreshing = authRequest('token?grant_type=refresh_token', { refresh_token: session.refresh_token })
+      .then(setSession)
+      .catch(e => {
+        if (e.status && e.status >= 400 && e.status < 500){ session = null; setPref('session', null); setSync('relogin'); }
+        throw e;
+      })
+      .finally(() => { refreshing = null; });
+  }
+  return refreshing;
+}
+
+let syncing = false, syncAgain = false, syncTimer = null;
+function scheduleSync(delay){ clearTimeout(syncTimer); syncTimer = setTimeout(sync, delay == null ? 1500 : delay); }
+async function sync(){
+  if (!session || !cfg().url){ setSync(pref('wasSignedIn', false) ? 'relogin' : 'local'); return; }
+  if (!navigator.onLine){ setSync('offline'); return; }
+  if (syncing){ syncAgain = true; return; }
+  syncing = true; setSync('syncing');
+  let retried = false;
+  for (;;){
+    try{
+      await ensureToken();
+      await pushPhotos();
+      await pushItems();
+      await pullItems();
+      await pushPhotoDeletes();
+      setSync('ok');
+      break;
+    }catch(e){
+      if (e && e.status === 401 && session && !retried){
+        retried = true;
+        try{ await ensureToken(true); continue; }catch(_){}
+      }
+      if (!session) setSync('relogin');
+      else if (!e || !e.status || !navigator.onLine) setSync('offline');
+      else setSync('error');
+      break;
+    }
+  }
+  syncing = false;
+  if (syncAgain){ syncAgain = false; scheduleSync(400); }
+}
+async function pushPhotos(){
+  const recs = (await dbAll('photos')).filter(p => p.state === 'local' && p.buf);
+  for (const p of recs){
+    await api('/storage/v1/object/photos/' + session.user.id + '/' + encodeURIComponent(p.id), {
+      method: 'POST', headers: { 'Content-Type': p.type || 'image/jpeg', 'x-upsert': 'true' },
+      body: new Blob([p.buf], { type: p.type || 'image/jpeg' })
+    });
+    const cur = await dbGet('photos', p.id);
+    if (cur && cur.state === 'local'){ cur.state = 'synced'; await dbPut('photos', cur); }
+  }
+}
+async function pushPhotoDeletes(){
+  const recs = (await dbAll('photos')).filter(p => p.state === 'delete');
+  if (!recs.length) return;
+  await api('/storage/v1/object/photos', {
+    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefixes: recs.map(p => session.user.id + '/' + p.id) })
+  });
+  for (const p of recs) await dbDel('photos', p.id);
+}
+async function pushItems(){
+  const dirty = (await dbAll('items')).filter(i => i.dirty);
+  for (let k = 0; k < dirty.length; k += 100){
+    const chunk = dirty.slice(k, k + 100);
+    const rows = chunk.map(i => ({ id: i.id, user_id: session.user.id, kind: i.kind, data: i.data || {}, updated: i.updated, deleted: !!i.deleted }));
+    const r = await api('/rest/v1/items?on_conflict=id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify(rows)
+    });
+    const back = await r.json();
+    const written = new Set((back || []).map(x => x.id));
+    for (const i of chunk){
+      if (!written.has(i.id)) continue;
+      const cur = await dbGet('items', i.id);
+      if (cur && cur.updated === i.updated && cur.dirty){ cur.dirty = false; await dbPut('items', cur); }
+    }
+    const skipped = chunk.filter(i => !written.has(i.id)).map(i => i.id);
+    if (skipped.length){
+      const list = '(' + skipped.map(x => '"' + x + '"').join(',') + ')';
+      const r2 = await api('/rest/v1/items?select=id,kind,data,updated,deleted,server_ts&id=in.' + encodeURIComponent(list));
+      await applyRemote(await r2.json(), true);
+    }
+  }
+}
+function tsMinus(ts, ms){
+  const d = new Date(String(ts).replace(/(\.\d{3})\d+/, '$1'));
+  return isNaN(d) ? '1970-01-01T00:00:00.000Z' : new Date(d.getTime() - ms).toISOString();
+}
+async function pullItems(){
+  const key = 'lastPull:' + session.user.id;
+  const since = (await dbGet('meta', key)) || '1970-01-01T00:00:00Z';
+  let filter = 'server_ts=gt.' + encodeURIComponent(tsMinus(since, 15000));
+  let last = null;
+  for (let guard = 0; guard < 400; guard++){
+    const r = await api('/rest/v1/items?select=id,kind,data,updated,deleted,server_ts&' + filter + '&order=server_ts.asc,id.asc&limit=500');
+    const rows = await r.json();
+    if (rows.length){ await applyRemote(rows, false); last = rows[rows.length - 1]; }
+    if (rows.length < 500) break;
+    const ts = '"' + last.server_ts + '"', id = '"' + last.id + '"';
+    filter = 'or=' + encodeURIComponent('(server_ts.gt.' + ts + ',and(server_ts.eq.' + ts + ',id.gt.' + id + '))');
+  }
+  if (last) await dbPut('meta', last.server_ts, key);
+}
+async function applyRemote(rows, force){
+  let changed = false;
+  for (const r of rows){
+    const upd = Number(r.updated) || 0;
+    const cur = await dbGet('items', r.id);
+    const take = !cur || force || (!cur.dirty && upd >= cur.updated) || (cur.dirty && upd > cur.updated);
+    if (!take) continue;
+    await dbPut('items', { id: r.id, kind: r.kind, data: r.data || {}, updated: upd, deleted: !!r.deleted, dirty: false });
+    changed = true;
+  }
+  if (changed){
+    await loadAll();
+    render();
+    if (D) refreshSheetPhotos();
+  }
+}
+async function hasUnsynced(){
+  const items = await dbAll('items'), photos = await dbAll('photos');
+  return items.some(i => i.dirty) || photos.some(p => p.state === 'local' || p.state === 'delete');
+}
+
+const SYNC_TEXT = {
+  local: 'только на этом устройстве', syncing: 'синхронизация…', ok: 'синхронизировано',
+  offline: 'без интернета, всё сохранено', error: 'сервер не отвечает, всё сохранено', relogin: 'нужно войти снова'
+};
+function syncHTML(){
+  return '<button class="sync st-' + S.sync + '" id="syncbtn" data-act="settings"><i></i>' + SYNC_TEXT[S.sync] + '</button>';
+}
+function setSync(st){
+  S.sync = st;
+  const el = document.getElementById('syncbtn'); if (el) el.outerHTML = syncHTML();
+  const ss = document.getElementById('set-status'); if (ss) ss.innerHTML = '<span class="sync st-' + st + '"><i></i>' + SYNC_TEXT[st] + '</span>';
+}
+
+/* ================= render ================= */
+function render(){
+  renderTabs();
+  $('#view').innerHTML = UI.tab === 'tasks' ? tasksHTML() : soonHTML(UI.tab);
+}
+function renderTabs(){
+  $('#tabbar').innerHTML = TABS.map(t =>
+    '<button class="tab' + (UI.tab === t[0] ? ' on' : '') + '" data-tab="' + t[0] + '"' +
+    (UI.tab === t[0] ? ' aria-current="page"' : '') + '>' + t[2] + '<span>' + t[1] + '</span></button>').join('');
+  $('#dock').dataset.tab = UI.tab;
+}
+function headerHTML(){
+  const h = new Date().getHours();
+  const greet = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
+  const date = new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+  const t = today();
+  let doneToday = 0; S.tasks.forEach(x => { if (x.done && x.doneAt === t) doneToday++; });
+  return '<header class="hello"><div><h1>' + greet + '</h1><p class="today"><span>' + date + '</span>' + syncHTML() + '</p></div>' +
+    '<div class="hello-right"><div class="done-today" title="Выполнено сегодня" aria-label="Выполнено сегодня: ' + doneToday + '">' + ICON.check + '<span>' + doneToday + '</span></div>' +
+    '<button class="icon-btn" data-act="settings" aria-label="Аккаунт и синхронизация">' + ICON.cloud + '</button></div></header>';
+}
+function toolbarHTML(){
+  return '<div class="toolbar">' +
+    '<button class="pill' + (UI.showDone ? ' on' : '') + '" data-act="toggle-done" aria-pressed="' + UI.showDone + '">' + ICON.checkCircle + 'Выполненные</button>' +
+    '<button class="pill new-desktop" data-act="new">' + ICON.plus + 'Новая задача</button>' +
+    '<div class="seg" role="group" aria-label="Вид">' +
+      '<button data-act="view" data-v="grid" aria-label="Квадраты" aria-pressed="' + (UI.view === 'grid') + '">' + ICON.grid + '</button>' +
+      '<button data-act="view" data-v="list" aria-label="Список по датам" aria-pressed="' + (UI.view === 'list') + '">' + ICON.list + '</button>' +
+    '</div></div>';
+}
+function sortTasks(a, b){
+  if (a.done !== b.done) return a.done ? 1 : -1;
+  const ad = a.date || '9999', bd = b.date || '9999';
+  if (ad !== bd) return ad < bd ? -1 : 1;
+  const at = a.time || '99', bt = b.time || '99';
+  if (at !== bt) return at < bt ? -1 : 1;
+  return (a.created || 0) - (b.created || 0);
+}
+function visibleTasks(){
+  return [...S.tasks.values()].filter(t => UI.showDone || !t.done || S.recent.has(t.id)).sort(sortTasks);
+}
+function tasksHTML(){
+  if (!S.loaded) return headerHTML() + '<p class="loading-msg">Открываю задачи…</p>';
+  const list = visibleTasks();
+  return headerHTML() + toolbarHTML() + (UI.view === 'grid' ? gridHTML(list) : listHTML(list));
+}
+function itemHTML(t, showQ){
+  const subsDone = t.subs.filter(s => s.done).length;
+  const late = !t.done && t.date && t.date < today();
+  const meta = [];
+  if (showQ) meta.push('<span class="m-q">' + Q[t.q].name + '</span>');
+  if (t.date) meta.push('<span' + (late ? ' class="m-late"' : '') + '>' + fmtDate(t.date) + (t.time ? ', ' + t.time : '') + '</span>');
+  else if (t.time) meta.push('<span>' + t.time + '</span>');
+  if (t.subs.length) meta.push('<span>' + ICON.subs + subsDone + '/' + t.subs.length + '</span>');
+  if (t.photos.length || t.subs.some(s => s.photos.length)) meta.push('<span aria-label="есть фото">' + ICON.photo + '</span>');
+  if (t.note.trim()) meta.push('<span aria-label="есть описание">' + ICON.note + '</span>');
+  return '<li class="task' + (t.done ? ' done' : '') + '" style="' + qStyle(t.q) + '" data-id="' + esc(t.id) + '">' +
+    '<button class="check" data-act="check" aria-pressed="' + t.done + '" aria-label="' + (t.done ? 'Вернуть в работу' : 'Отметить выполненной') + '">' + ICON.tick + '</button>' +
+    '<button class="t-body" data-act="open"><span class="t-title">' + esc(t.title) + '</span>' +
+    (meta.length ? '<span class="t-meta">' + meta.join('') + '</span>' : '') + '</button></li>';
+}
+function gridHTML(list){
+  return '<section class="quads">' + [1, 2, 3, 4].map(q => {
+    const items = list.filter(t => t.q === q);
+    const open = items.filter(t => !t.done).length;
+    return '<div class="quad" style="' + qStyle(q) + '">' +
+      '<div class="quad-head"><span class="qicon">' + Q[q].icon + '</span><h2>' + Q[q].name + '</h2>' +
+      '<span class="qcount">' + (open || '') + '</span>' +
+      '<button class="qadd" data-act="new" data-q="' + q + '" aria-label="Добавить в «' + Q[q].name + '»">' + ICON.plus + '</button></div>' +
+      (items.length ? '<ul class="tlist">' + items.map(t => itemHTML(t, false)).join('') + '</ul>' : '<p class="qempty">Пусто</p>') +
+      '</div>';
+  }).join('') + '</section>';
+}
+function listHTML(list){
+  if (!list.length) return '<div class="empty">Задач пока нет. Нажми «+», чтобы добавить первую.</div>';
+  const t = today(), tm = addDays(t, 1);
+  const groups = [
+    ['Просрочено', x => x.date && x.date < t && !x.done, 'late'],
+    ['Сегодня', x => x.date === t],
+    ['Завтра', x => x.date === tm],
+    ['Позже', x => x.date && x.date > tm],
+    ['Без даты', x => !x.date],
+    ['Прошедшие', x => x.date && x.date < t && x.done]
+  ];
+  return groups.map(g => {
+    const items = list.filter(g[1]);
+    if (!items.length) return '';
+    return '<section class="group"><h3' + (g[2] ? ' class="' + g[2] + '"' : '') + '>' + g[0] + ' <span>' + items.length + '</span></h3>' +
+      '<ul class="tlist">' + items.map(x => itemHTML(x, true)).join('') + '</ul></section>';
+  }).join('');
+}
+const SOON = {
+  routine: ['Рутина', 'Списки на день и на вечер плюс свои блоки. У пунктов галочки и время, их можно переставлять и переименовывать.'],
+  calendar: ['Календарь', 'Сегодня, неделя и месяц, листание по году. Задачи с датой будут появляться здесь сами, у событий будут цвет, описание и фото.'],
+  diary: ['Дневник', 'Запись на каждый день без ограничения по длине, фото и эмоции по колесу: от общего «плохо» до точного «спешка».'],
+  shop: ['Покупки', 'Продукты по отделам и сколько чего осталось дома.']
+};
+function soonHTML(k){
+  const s = SOON[k];
+  return '<section class="soon"><h1>' + s[0] + '</h1><p>' + s[1] + '</p><span class="tag">Появится на следующем этапе</span></section>';
+}
+
+/* ================= main interactions ================= */
+function toggleDone(id){
+  const t = S.tasks.get(id); if (!t) return;
+  const n = JSON.parse(JSON.stringify(t));
+  n.done = !t.done; n.doneAt = n.done ? today() : null;
+  if (n.done && !UI.showDone){
+    S.recent.add(id);
+    setTimeout(() => { S.recent.delete(id); render(); }, 1100);
+  }
+  persist(n);
+}
+$('#view').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, li = b.closest('.task');
+  if (act === 'check' && li) toggleDone(li.dataset.id);
+  else if (act === 'open' && li) openTask(li.dataset.id);
+  else if (act === 'new') openTask(null, { q: +(b.dataset.q || 2) });
+  else if (act === 'view'){ UI.view = b.dataset.v; setPref('view', UI.view); render(); }
+  else if (act === 'toggle-done'){ UI.showDone = !UI.showDone; setPref('showDone', UI.showDone); render(); }
+  else if (act === 'settings') openSettings();
+});
+$('#tabbar').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  if (UI.tab === b.dataset.tab) return;
+  UI.tab = b.dataset.tab; setPref('tab', UI.tab); render(); window.scrollTo(0, 0);
+});
+$('#fab').innerHTML = ICON.plus;
+$('#fab').addEventListener('click', () => openTask(null, { q: 2 }));
+
+/* ================= sheets (shared) ================= */
+let D = null;        // task draft
+let setOpen = false; // settings sheet open
+function mountSheet(label, inner){
+  const root = $('#sheet-root');
+  root.innerHTML = '<div class="sheet-wrap"><div class="backdrop" data-close="1"></div>' +
+    '<div class="sheet" role="dialog" aria-modal="true" aria-label="' + label + '"><div class="grab" aria-hidden="true"></div>' + inner + '</div></div>';
+  document.body.classList.add('locked');
+  requestAnimationFrame(() => requestAnimationFrame(() => { const w = $('.sheet-wrap', root); if (w) w.classList.add('open'); }));
+  return root;
+}
+function unmountSheet(){
+  document.body.classList.remove('locked');
+  const w = $('#sheet-root .sheet-wrap'); if (!w) return;
+  w.classList.remove('open');
+  setTimeout(() => { if (w.isConnected && !w.classList.contains('open')) w.remove(); }, reduceMotion ? 0 : 260);
+}
+
+/* ================= task sheet ================= */
+function openTask(id, preset){
+  const src = id ? S.tasks.get(id) : null;
+  if (id && !src) return;
+  const t = src ? norm(JSON.parse(JSON.stringify(src))) : blankTask(preset);
+  D = { t: t, orig: JSON.stringify(t), isNew: !src, busy: 0, pend: {}, openSub: null };
+  setOpen = false;
+  const root = mountSheet('Задача',
+      '<div class="s-head">' +
+        '<button class="check big" data-sact="done">' + ICON.tick + '</button>' +
+        '<textarea class="title-input" rows="1" placeholder="Что нужно сделать?" aria-label="Название задачи" enterkeyhint="done"></textarea>' +
+        '<button class="icon-btn" data-sact="close" aria-label="Закрыть">' + ICON.close + '</button>' +
+      '</div>' +
+      '<div class="qpick" role="radiogroup" aria-label="Категория"></div>' +
+      '<div class="when">' +
+        '<label class="fld"><span>Дата</span><input type="date" class="in-date"></label>' +
+        '<label class="fld"><span>Время</span><input type="time" class="in-time"></label>' +
+        '<button class="chip-btn" data-sact="today">Сегодня</button>' +
+        '<button class="chip-btn" data-sact="clear-date">Без даты</button>' +
+      '</div>' +
+      '<label class="fld block"><span>Описание</span><textarea class="in-note" rows="2" placeholder="Детали, ссылки, мысли"></textarea></label>' +
+      '<div class="blk"><div class="blk-h">Фото</div><div class="photos" data-target="main"></div></div>' +
+      '<div class="blk"><div class="blk-h"><span>Подзадачи</span><span class="sub-count"></span></div>' +
+        '<ul class="subs"></ul>' +
+        '<div class="sub-add">' + ICON.plus + '<input class="in-sub" placeholder="Добавить подзадачу" aria-label="Новая подзадача" enterkeyhint="enter"></div>' +
+      '</div>' +
+      '<div class="s-actions">' + (D.isNew ? '<span></span>' : '<button class="danger" data-sact="delete">Удалить задачу</button>') +
+        '<button class="primary" data-sact="close">Готово</button></div>');
+  $('.title-input', root).value = t.title;
+  $('.in-note', root).value = t.note;
+  $('.in-date', root).value = t.date || '';
+  $('.in-time', root).value = t.time || '';
+  renderHeadCheck(); renderQPick(); renderPhotos('main'); renderSubs();
+  $$('textarea', root).forEach(autosize);
+  if (D.isNew) $('.title-input', root).focus();
+}
+function autosize(el){ el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+function renderHeadCheck(){
+  const b = $('#sheet-root .check.big'); if (!b) return;
+  b.setAttribute('aria-pressed', D.t.done);
+  b.setAttribute('aria-label', D.t.done ? 'Вернуть в работу' : 'Отметить выполненной');
+}
+function renderQPick(){
+  $('#sheet-root .qpick').innerHTML = [1, 2, 3, 4].map(q =>
+    '<button class="qchip' + (D.t.q === q ? ' on' : '') + '" role="radio" aria-checked="' + (D.t.q === q) + '" style="' + qStyle(q) + '" data-sact="q" data-q="' + q + '">' +
+    Q[q].icon + '<span>' + Q[q].name + '</span></button>').join('');
+  const sh = $('#sheet-root .sheet');
+  sh.style.setProperty('--c', 'var(--q' + D.t.q + ')');
+  sh.style.setProperty('--t', 'var(--q' + D.t.q + '-t)');
+}
+function photoArr(t, target){
+  if (target === 'main') return t.photos;
+  const s = t.subs.find(x => 'sub:' + x.id === target);
+  return s ? s.photos : null;
+}
+function renderPhotos(target){
+  if (!D) return;
+  const box = $$('#sheet-root .photos').find(b => b.dataset.target === target);
+  if (!box) return;
+  const arr = photoArr(D.t, target) || [];
+  const n = D.pend[target] || 0;
+  let html = arr.map((p, i) => '<button class="ph" data-sact="photo" data-i="' + i + '" aria-label="Открыть фото ' + (i + 1) + '">' +
+    '<span class="ph-ph">' + ICON.photoBig + '</span><img data-pid="' + esc(p) + '" alt=""></button>').join('');
+  for (let i = 0; i < n; i++) html += '<div class="ph loading" aria-label="Фото обрабатывается"></div>';
+  html += '<label class="ph add">' + ICON.camera + '<span>Добавить</span><input class="vh" type="file" accept="image/*" multiple data-target="' + esc(target) + '"></label>';
+  box.innerHTML = html;
+  $$('img[data-pid]', box).forEach(img => {
+    photoURL(img.dataset.pid).then(u => { if (u && img.isConnected) img.src = u; });
+  });
+}
+function refreshSheetPhotos(){ if (!D) return; renderPhotos('main'); if (D.openSub) renderPhotos('sub:' + D.openSub); }
+function renderSubs(){
+  const ul = $('#sheet-root .subs'); if (!ul) return;
+  ul.innerHTML = D.t.subs.map(s => {
+    const open = D.openSub === s.id, has = !!(s.note.trim() || s.photos.length);
+    return '<li class="sub' + (s.done ? ' done' : '') + (open ? ' open' : '') + '" data-sid="' + esc(s.id) + '">' +
+      '<div class="sub-row">' +
+        '<button class="check sm" data-sact="sub-check" aria-pressed="' + s.done + '" aria-label="' + (s.done ? 'Вернуть подзадачу' : 'Отметить подзадачу') + '">' + ICON.tick + '</button>' +
+        '<input class="sub-title" value="' + esc(s.title) + '" placeholder="Подзадача" aria-label="Подзадача">' +
+        '<button class="icon-btn' + (has ? ' has' : '') + '" data-sact="sub-more" aria-expanded="' + open + '" aria-label="Описание и фото подзадачи">' + (has ? ICON.noteBig : ICON.chev) + '</button>' +
+      '</div>' +
+      (open ? '<div class="sub-detail"><textarea class="sub-note" rows="2" placeholder="Описание подзадачи" aria-label="Описание подзадачи">' + esc(s.note) + '</textarea>' +
+        '<div class="photos" data-target="sub:' + esc(s.id) + '"></div>' +
+        '<button class="link-danger" data-sact="sub-del">Удалить подзадачу</button></div>' : '') +
+      '</li>';
+  }).join('');
+  if (D.openSub){ renderPhotos('sub:' + D.openSub); const ta = $('#sheet-root .sub-note'); if (ta) autosize(ta); }
+  const done = D.t.subs.filter(s => s.done).length;
+  $('#sheet-root .sub-count').textContent = D.t.subs.length ? done + ' из ' + D.t.subs.length : '';
+}
+function addSub(title){
+  D.t.subs.push({ id: newId(), title: title, done: false, note: '', photos: [] });
+  renderSubs();
+}
+const subOf = el => { const li = el.closest('.sub'); return li && D.t.subs.find(s => s.id === li.dataset.sid); };
+
+let armTimer = null;
+function arm(btn, label, action){
+  if (btn.classList.contains('arm')){ clearTimeout(armTimer); action(); return; }
+  const old = btn.textContent;
+  btn.classList.add('arm'); btn.textContent = label;
+  clearTimeout(armTimer);
+  armTimer = setTimeout(() => { if (btn.isConnected){ btn.classList.remove('arm'); btn.textContent = old; } }, 3000);
+}
+
+const sheetRoot = $('#sheet-root');
+sheetRoot.addEventListener('click', e => {
+  if (setOpen){
+    const sb = e.target.closest('[data-set],[data-close]');
+    if (sb) settingsAction(sb.dataset.set || 'close', sb);
+    return;
+  }
+  if (!D) return;
+  if (e.target.closest('[data-close]')){ closeSheet(); return; }
+  const b = e.target.closest('[data-sact]'); if (!b) return;
+  const a = b.dataset.sact;
+  if (a === 'close') closeSheet();
+  else if (a === 'done'){ D.t.done = !D.t.done; D.t.doneAt = D.t.done ? today() : null; renderHeadCheck(); }
+  else if (a === 'q'){ D.t.q = +b.dataset.q; renderQPick(); }
+  else if (a === 'today'){ D.t.date = today(); $('#sheet-root .in-date').value = D.t.date; }
+  else if (a === 'clear-date'){ D.t.date = null; D.t.time = null; $('#sheet-root .in-date').value = ''; $('#sheet-root .in-time').value = ''; }
+  else if (a === 'delete'){ const id = D.t.id; arm(b, 'Точно удалить?', () => { D = null; unmountSheet(); removeTask(id); }); }
+  else if (a === 'sub-check'){ const s = subOf(b); if (s){ s.done = !s.done; renderSubs(); } }
+  else if (a === 'sub-more'){ const s = subOf(b); if (s){ D.openSub = D.openSub === s.id ? null : s.id; renderSubs(); } }
+  else if (a === 'sub-del'){
+    const s = subOf(b); if (!s) return;
+    arm(b, 'Точно удалить?', () => { s.photos.forEach(removePhoto); D.t.subs = D.t.subs.filter(x => x !== s); D.openSub = null; renderSubs(); });
+  }
+  else if (a === 'photo'){ const box = b.closest('.photos'); openLightbox(box.dataset.target, +b.dataset.i); }
+});
+sheetRoot.addEventListener('input', e => {
+  if (!D) return;
+  const el = e.target;
+  if (el.classList.contains('title-input')){ D.t.title = el.value.replace(/\n/g, ' '); autosize(el); }
+  else if (el.classList.contains('in-note')){ D.t.note = el.value; autosize(el); }
+  else if (el.classList.contains('sub-title')){ const s = subOf(el); if (s) s.title = el.value; }
+  else if (el.classList.contains('sub-note')){ const s = subOf(el); if (s) s.note = el.value; autosize(el); }
+});
+sheetRoot.addEventListener('change', e => {
+  if (!D) return;
+  const el = e.target;
+  if (el.classList.contains('in-date')) D.t.date = el.value || null;
+  else if (el.classList.contains('in-time')) D.t.time = el.value || null;
+  else if (el.type === 'file' && el.files && el.files.length){
+    const files = [...el.files], target = el.dataset.target;
+    el.value = '';
+    handleFiles(files, target);
+  }
+});
+sheetRoot.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.isComposing) return;
+  const el = e.target;
+  if (setOpen){
+    if (el.classList.contains('in-pass')){ e.preventDefault(); const b = $('#sheet-root [data-set="login"]'); if (b) settingsAction('login', b); }
+    return;
+  }
+  if (!D) return;
+  if (el.classList.contains('title-input')){ e.preventDefault(); el.blur(); }
+  else if (el.classList.contains('in-sub')){
+    e.preventDefault();
+    const v = el.value.trim();
+    if (v){ addSub(v); el.value = ''; }
+  }
+  else if (el.classList.contains('sub-title')){ e.preventDefault(); el.blur(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const lb = $('.lightbox');
+  if (lb){ lb.remove(); return; }
+  if (setOpen) closeSettings();
+  else if (D) closeSheet();
+});
+
+async function handleFiles(files, target){
+  const draft = D;
+  for (const f of files){
+    if (D !== draft) return;
+    draft.busy++; draft.pend[target] = (draft.pend[target] || 0) + 1; renderPhotos(target);
+    try{
+      const id = await addPhotoFile(f);
+      const arr = photoArr(draft.t, target);
+      if (arr) arr.push(id); else removePhoto(id);
+    }catch(err){
+      toast(err && err.message === 'decode' ? 'Этот формат фото не открывается. Попробуй JPG или PNG.' : 'Не получилось сохранить фото. Освободи место на устройстве.');
+    }finally{
+      draft.busy--; draft.pend[target]--;
+      if (D === draft) renderPhotos(target);
+    }
+  }
+}
+
+async function openLightbox(target, idx){
+  const arr = photoArr(D.t, target); if (!arr || !arr[idx]) return;
+  const url = await photoURL(arr[idx]);
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-label', 'Фото');
+  lb.innerHTML = '<div class="lb-bar"><button data-lb="del">Удалить фото</button><button data-lb="close">Закрыть</button></div>' +
+    (url ? '<img src="' + esc(url) + '" alt="">' : '<p class="lb-miss">Это фото загрузится, когда появится интернет.</p>');
+  lb.addEventListener('click', e => {
+    const b = e.target.closest('[data-lb]');
+    if (b && b.dataset.lb === 'del'){
+      arm(b, 'Точно удалить?', () => {
+        const removed = arr.splice(idx, 1)[0];
+        removePhoto(removed);
+        renderPhotos(target);
+        lb.remove();
+      });
+      return;
+    }
+    lb.remove();
+  });
+  document.body.appendChild(lb);
+}
+
+function closeSheet(){
+  if (!D) return;
+  if (D.busy > 0){ toast('Подожди секунду, фото ещё сохраняется'); return; }
+  const pendingSub = $('#sheet-root .in-sub');
+  if (pendingSub && pendingSub.value.trim()) D.t.subs.push({ id: newId(), title: pendingSub.value.trim(), done: false, note: '', photos: [] });
+  const t = D.t;
+  t.title = t.title.trim();
+  t.subs = t.subs.filter(s => s.title.trim() || s.note.trim() || s.photos.length).map(s => Object.assign(s, { title: s.title.trim() }));
+  const empty = !t.title && !t.note.trim() && !t.photos.length && !t.subs.length;
+  if (!(D.isNew && empty)){
+    if (!t.title) t.title = 'Без названия';
+    if (JSON.stringify(t) !== D.orig){
+      const prev = S.tasks.get(t.id);
+      if (t.done && !(prev && prev.done) && !UI.showDone){ S.recent.add(t.id); setTimeout(() => { S.recent.delete(t.id); render(); }, 1100); }
+      persist(t);
+    }
+  }
+  D = null;
+  unmountSheet();
+}
+
+/* ================= settings sheet ================= */
+function openSettings(){
+  if (D) return;
+  setOpen = true;
+  mountSheet('Синхронизация',
+    '<div class="s-head"><h2 class="s-title">Синхронизация</h2><button class="icon-btn" data-set="close" aria-label="Закрыть">' + ICON.close + '</button></div>' +
+    '<div id="set-body"></div>');
+  renderSettings();
+}
+function closeSettings(){ setOpen = false; unmountSheet(); }
+function renderSettings(){
+  const b = $('#set-body'); if (!b) return;
+  let h = '<p class="set-status" id="set-status"><span class="sync st-' + S.sync + '"><i></i>' + SYNC_TEXT[S.sync] + '</span></p>' +
+    '<p class="set-note">Всё хранится на устройстве и работает без интернета. Когда появляется сеть, изменения уходят в облако и приходят на другие устройства, где выполнен вход в тот же аккаунт.</p>';
+  if (session){
+    h += '<div class="set-card"><div class="set-label">Аккаунт</div><div class="set-val">' + esc(session.user.email) + '</div></div>' +
+      '<div class="set-actions"><button class="primary" data-set="sync">Синхронизировать сейчас</button>' +
+      '<button class="danger" data-set="logout">Выйти на этом устройстве</button></div>';
+  } else {
+    if (!hasBaked()){
+      h += '<label class="fld block"><span>Адрес проекта Supabase</span><input class="in-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://xxxx.supabase.co"></label>' +
+        '<label class="fld block"><span>Ключ проекта (publishable или anon)</span><input class="in-key" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sb_publishable_…"></label>';
+    }
+    h += '<label class="fld block"><span>Почта</span><input class="in-email" type="email" autocomplete="username" autocapitalize="off" spellcheck="false"></label>' +
+      '<label class="fld block"><span>Пароль</span><input class="in-pass" type="password" autocomplete="current-password" enterkeyhint="go"></label>' +
+      '<p class="set-err" role="alert"></p>' +
+      '<div class="set-actions"><button class="primary" data-set="login">Войти</button><button class="ghost" data-set="signup">Создать аккаунт</button></div>';
+  }
+  b.innerHTML = h;
+  if (!session && !hasBaked()){ const c = cfg(); $('.in-url', b).value = c.url; $('.in-key', b).value = c.key; }
+}
+function authErrorText(e){
+  const m = String(e && e.message || '').toLowerCase();
+  if (!e || !e.status) return 'Не получилось связаться с сервером. Проверь адрес проекта и интернет.';
+  if (m.indexOf('invalid login') >= 0) return 'Неверная почта или пароль.';
+  if (m.indexOf('not confirmed') >= 0) return 'Почта не подтверждена. Перейди по ссылке из письма или отключи подтверждение почты в Supabase.';
+  if (m.indexOf('already') >= 0) return 'Такой аккаунт уже есть. Нажми «Войти».';
+  if (m.indexOf('api key') >= 0 || m.indexOf('apikey') >= 0 || e.status === 401) return 'Ключ проекта не подходит. Скопируй его ещё раз из Supabase.';
+  if (m.indexOf('password') >= 0) return 'Пароль слишком простой. Придумай длиннее.';
+  if (e.status === 429) return 'Слишком много попыток. Подожди минуту.';
+  return 'Ошибка: ' + e.message;
+}
+async function settingsAction(a, btn){
+  if (a === 'close'){ closeSettings(); return; }
+  if (a === 'sync'){ btn.disabled = true; await sync(); btn.disabled = false; return; }
+  if (a === 'logout'){
+    const unsynced = await hasUnsynced();
+    arm(btn, unsynced ? 'Не всё ушло в облако. Всё равно выйти?' : 'Точно выйти?', () => logout());
+    return;
+  }
+  if (a !== 'login' && a !== 'signup') return;
+  const b = $('#set-body'), err = $('.set-err', b);
+  if (!hasBaked()){
+    const url = $('.in-url', b).value.trim().replace(/\/+$/, ''), key = $('.in-key', b).value.trim();
+    if (!/^https:\/\/\S+$/.test(url) || !key){ err.textContent = 'Вставь адрес проекта и ключ из настроек Supabase.'; return; }
+    setPref('cfg', { url: url, key: key });
+  }
+  const email = $('.in-email', b).value.trim(), pw = $('.in-pass', b).value;
+  if (!email || pw.length < 6){ err.textContent = 'Нужны почта и пароль не короче 6 символов.'; return; }
+  if (!navigator.onLine){ err.textContent = 'Для входа нужен интернет. Дальше приложение работает и без него.'; return; }
+  err.textContent = ''; btn.disabled = true;
+  try{
+    if (a === 'login') await signIn(email, pw);
+    else if ((await signUp(email, pw)) === 'confirm'){
+      err.textContent = 'Аккаунт создан. Подтверди почту по ссылке из письма, потом нажми «Войти».';
+      btn.disabled = false; return;
+    }
+    setPref('wasSignedIn', true);
+    renderSettings();
+    toast('Вход выполнен, синхронизирую');
+    sync();
+  }catch(e){ err.textContent = authErrorText(e); btn.disabled = false; }
+}
+async function logout(){
+  session = null; setPref('session', null); setPref('wasSignedIn', false);
+  try{ await dbClear(); }catch(e){}
+  urlCache.forEach(u => URL.revokeObjectURL(u)); urlCache.clear();
+  await loadAll();
+  setSync('local');
+  render(); renderSettings();
+  toast('Готово. Данные с этого устройства убраны, в облаке они остались.');
+}
+
+/* ================= toast ================= */
+let toastTimer = null;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3400);
+}
+
+/* ================= start ================= */
+window.addEventListener('online', () => sync());
+window.addEventListener('offline', () => { if (session) setSync('offline'); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (!D && !setOpen) render();
+  sync();
+});
+setInterval(() => { if (!document.hidden && session) sync(); }, 60000);
+
+(async function start(){
+  S.sync = session && cfg().url ? (navigator.onLine ? 'syncing' : 'offline') : 'local';
+  render();
+  try{ idb = await idbOpen(); }
+  catch(e){ idb = null; toast('Память устройства недоступна: записи пропадут после закрытия. Проверь, не включён ли частный режим.'); }
+  try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  await loadAll();
+  render();
+  sync();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
+    navigator.serviceWorker.register('sw.js').then(reg => { try{ reg.update(); }catch(e){} }).catch(() => {});
+  }
+})();
+})();
+</script>
+</body>
+</html>
