@@ -326,7 +326,9 @@ select{font:inherit;color:inherit}
 .ritem.done .r-title{text-decoration:line-through;color:var(--ink-2)}
 .r-time{font-size:14.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;flex:none}
 .ritem.edit{flex-wrap:wrap;gap:8px}
-.ritem.edit [data-rf="title"]{flex:1 1 180px}
+.ritem.edit [data-rf="title"]{flex:1 1 100%}
+.r-times{display:flex;align-items:center;gap:8px;flex:1 1 100%;color:var(--ink-2);font-size:15px}
+.r-times .r-tin{flex:1;max-width:130px;width:auto}
 .r-tin{width:112px;flex:none}
 .r-tools{display:flex;align-items:center;gap:6px;flex:1 1 100%}
 .r-sel{border:0;background:var(--bg);border-radius:10px;height:36px;padding:0 8px;font-size:15px;color:var(--ink);flex:1;min-width:0;-webkit-appearance:none;appearance:none}
@@ -472,6 +474,16 @@ select{font:inherit;color:inherit}
   .stat button{padding:0 7px;font-size:13px}
 }
 @media (prefers-reduced-motion:reduce){.sync.st-syncing i{animation:none}.rb-bar i{transition:none}}
+
+/* ---------- recurring events ---------- */
+[hidden]{display:none!important}
+.when.rep .fld select{min-width:190px}
+.rep-info{margin:-4px 2px 14px;font-size:14px;color:var(--ink-2);max-width:50ch}
+.ev-rep{display:inline-flex;align-items:center;gap:3px}
+.s-actions.scope{flex-direction:column;align-items:stretch;gap:8px}
+.scope-q{margin:0 0 4px;font-size:15.5px;font-weight:500}
+.scope-btn{min-height:50px;border-radius:14px;background:var(--bg);font-size:16px;font-weight:500;text-align:left;padding:0 16px}
+.scope-cancel{min-height:44px;border-radius:14px;color:var(--ink-2);font-size:15px}
 </style>
 </head>
 <body>
@@ -574,6 +586,7 @@ const ICON = {
   trash: I('<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12.5h9l1-12.5M9.5 7V4.5h5V7"/>', 18),
   cart: I('<path d="M3 4h2.2l2.3 11h10.1L20 8H7.1"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="16.5" cy="19" r="1.4"/>', 18),
   close: I('<path d="M6 6l12 12M18 6 6 18"/>', 18),
+  repeat: I('<path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/>', 13),
   closeSm: I('<path d="M7 7l10 10M17 7 7 17"/>', 14, false, 2.2),
   check: I('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 16, false, 2.6),
   cloud: I('<path d="M7.5 18.5h9.2a4.3 4.3 0 0 0 .5-8.6 6 6 0 0 0-11.4 1.6 3.6 3.6 0 0 0 1.7 7z"/>', 20, false, 1.8),
@@ -598,6 +611,10 @@ const EV_COLORS = [
   ['teal', '#22A6A3', 'Бирюзовый'], ['blue', '#3F82EA', 'Синий'], ['purple', '#8577D4', 'Фиолетовый'], ['pink', '#DB5C9A', 'Розовый']
 ];
 const evColor = k => (EV_COLORS.find(c => c[0] === k) || EV_COLORS[5])[1];
+const REPEATS = [['', 'Не повторять', ''], ['day', 'Каждый день', 'каждый день'], ['week', 'Каждую неделю', 'каждую неделю'],
+  ['2week', 'Каждые 2 недели', 'каждые 2 недели'], ['month', 'Каждый месяц', 'каждый месяц'], ['year', 'Каждый год', 'каждый год']];
+const REPEAT_KEYS = REPEATS.map(r => r[0]).filter(Boolean);
+const repText = k => (REPEATS.find(r => r[0] === k) || REPEATS[0])[2];
 
 const ROUTINE_BASE = [{ id: 'day', name: 'День', c: 'var(--q3)' }, { id: 'evening', name: 'Вечер', c: 'var(--lav)' }];
 const BLOCK_COLORS = ['var(--mint)', 'var(--q2)', '#DB5C9A', 'var(--q1)', '#22A6A3', 'var(--q4)'];
@@ -660,7 +677,7 @@ function blankTask(p){
 function blankEvent(p){
   p = p || {};
   return { id: uuid(), title: '', date: p.date || today(), time: p.time || null, end: null, color: p.color || 'blue',
-    done: false, note: '', photos: [], created: Date.now() };
+    done: false, note: '', photos: [], repeat: null, until: null, skip: [], doneOn: {}, created: Date.now() };
 }
 const blankDiary = d => ({ id: 'diary-' + d, date: d, note: '', photos: [], emo: [] });
 const NORM = {
@@ -670,9 +687,11 @@ const NORM = {
     subs: Array.isArray(t.subs) ? t.subs.map(s => ({ id: str(s.id || newId()), title: str(s.title), done: !!s.done, note: str(s.note), photos: strArr(s.photos) })) : []
   }),
   event: e => Object.assign(blankEvent(), e, { title: str(e.title), note: str(e.note), done: !!e.done, photos: strArr(e.photos),
-    date: isDate(e.date) ? e.date : today(), time: e.time || null, end: e.end || null }),
-  routine: r => Object.assign({ title: '', time: null, block: 'day', order: 0, created: 0 }, r, { title: str(r.title) }),
-  rblock: b => Object.assign({ name: 'Блок', order: 0, created: 0 }, b, { name: str(b.name) || 'Блок' }),
+    date: isDate(e.date) ? e.date : today(), time: e.time || null, end: e.end || null,
+    repeat: REPEAT_KEYS.indexOf(e.repeat) >= 0 ? e.repeat : null, until: isDate(e.until) ? e.until : null,
+    skip: strArr(e.skip).filter(isDate), doneOn: (e.doneOn && typeof e.doneOn === 'object' && !Array.isArray(e.doneOn)) ? e.doneOn : {} }),
+  routine: r => Object.assign({ title: '', time: null, end: null, block: 'day', order: 0, created: 0 }, r, { title: str(r.title), time: r.time || null, end: r.end || null }),
+  rblock: b => Object.assign({ name: 'Блок', order: 0, created: 0 }, b, { name: str(b.name) || 'Блок', hidden: !!b.hidden }),
   rcheck: c => Object.assign({ date: '', done: {} }, c, { done: (c.done && typeof c.done === 'object') ? c.done : {} }),
   diary: d => Object.assign(blankDiary(d.date || str(d.id).slice(6)), d, { note: str(d.note), photos: strArr(d.photos),
     emo: Array.isArray(d.emo) ? d.emo.filter(x => x && x.a) : [] }),
@@ -747,10 +766,41 @@ function photosOf(o){
 }
 function removeItem(kind, id, opts){
   const o = S.by[kind].get(id);
-  photosOf(o).forEach(removePhoto);
   S.by[kind].delete(id);
+  releasePhotos(photosOf(o));
   if (!opts || !opts.silent) render(true);
   saveItem(id, kind, {}, true);
+}
+// a photo can be shared (e.g. by a recurring event and its edited copy), so only delete it when nothing uses it
+function releasePhotos(ids){
+  if (!ids || !ids.length) return;
+  const used = new Set();
+  KINDS.forEach(k => S.by[k].forEach(o => photosOf(o).forEach(p => used.add(p))));
+  ids.forEach(id => { if (!used.has(id)) removePhoto(id); });
+}
+const dayNum = s => { const p = s.split('-').map(Number); return Date.UTC(p[0], p[1] - 1, p[2]) / 864e5; };
+const diffDays = (a, b) => Math.round(dayNum(b) - dayNum(a));
+const clampDate = (y, m, d) => ymd(new Date(y, m, Math.min(d, new Date(y, m + 1, 0).getDate())));
+function occurrences(e, from, to){
+  const out = [];
+  const start = e.date > from ? e.date : from;
+  const end = e.until && e.until < to ? e.until : to;
+  if (start > end) return out;
+  const skip = new Set(e.skip || []);
+  const push = d => { if (d >= start && d <= end && d >= e.date && !skip.has(d)) out.push(d); };
+  if (e.repeat === 'day' || e.repeat === 'week' || e.repeat === '2week'){
+    const step = e.repeat === 'day' ? 1 : e.repeat === 'week' ? 7 : 14;
+    let d = addDays(e.date, Math.ceil(diffDays(e.date, start) / step) * step);
+    for (let guard = 0; d <= end && guard < 4000; guard++){ push(d); d = addDays(d, step); }
+  } else if (e.repeat === 'month'){
+    const sd = parseYmd(e.date).getDate(), cur = parseYmd(start);
+    cur.setDate(1);
+    for (let guard = 0; ymd(cur) <= end && guard < 600; guard++){ push(clampDate(cur.getFullYear(), cur.getMonth(), sd)); cur.setMonth(cur.getMonth() + 1); }
+  } else if (e.repeat === 'year'){
+    const s = parseYmd(e.date);
+    for (let y = parseYmd(start).getFullYear(); y <= parseYmd(end).getFullYear(); y++) push(clampDate(y, s.getMonth(), s.getDate()));
+  }
+  return out;
 }
 
 /* ================= photos ================= */
@@ -1136,18 +1186,51 @@ function toggleDone(id){
 }
 
 /* ================= routine ================= */
+// «День» и «Вечер» are built in, but can be renamed, moved or removed: changes are stored as rblock records with ids 'day' / 'evening'
+const isBase = id => id === 'day' || id === 'evening';
 function blocksList(){
-  const custom = [...S.by.rblock.values()].sort((a, b) => (a.order || 0) - (b.order || 0) || (a.created || 0) - (b.created || 0));
-  return ROUTINE_BASE.map(b => ({ id: b.id, name: b.name, c: b.c, fixed: true }))
-    .concat(custom.map((b, i) => ({ id: b.id, name: b.name, c: BLOCK_COLORS[i % BLOCK_COLORS.length], fixed: false })));
+  const list = [];
+  ROUTINE_BASE.forEach((b, i) => {
+    const o = S.by.rblock.get(b.id);
+    if (o && o.hidden) return;
+    list.push({ id: b.id, name: o ? o.name : b.name, c: b.c, order: o ? (o.order || 0) : i, created: 0 });
+  });
+  [...S.by.rblock.values()].filter(b => !isBase(b.id)).sort((a, b) => (a.created || 0) - (b.created || 0))
+    .forEach((b, i) => list.push({ id: b.id, name: b.name, c: BLOCK_COLORS[i % BLOCK_COLORS.length], order: b.order || 0, created: b.created || 0 }));
+  return list.sort((a, b) => a.order - b.order || a.created - b.created);
+}
+function blockExists(id){
+  if (isBase(id)){ const o = S.by.rblock.get(id); return !(o && o.hidden); }
+  return S.by.rblock.has(id);
 }
 function blockOf(r){
-  return r.block === 'day' || r.block === 'evening' || S.by.rblock.has(r.block) ? r.block : 'day';
+  if (blockExists(r.block)) return r.block;
+  const first = blocksList()[0];
+  return first ? first.id : null;
+}
+function saveBlock(id, changes){
+  const cur = S.by.rblock.get(id), b = blocksList().find(x => x.id === id);
+  const base = cur ? clone(cur) : { id: id, name: b ? b.name : 'Блок', order: b ? b.order : 0, created: 0 };
+  persistItem('rblock', Object.assign(base, changes), { silent: true });
+}
+function blockMove(id, dir){
+  const list = blocksList(), i = list.findIndex(b => b.id === id), j = i + dir;
+  if (i < 0 || j < 0 || j >= list.length) return;
+  const tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+  list.forEach((b, k) => { const cur = S.by.rblock.get(b.id); if (!cur || cur.order !== k) saveBlock(b.id, { order: k }); });
+  render(true);
+}
+function blockDelete(id){
+  routineItems(id).forEach(x => removeItem('routine', x.id, { silent: true }));
+  if (isBase(id)) saveBlock(id, { hidden: true });
+  else removeItem('rblock', id, { silent: true });
+  render(true);
 }
 function routineItems(block){
   return [...S.by.routine.values()].filter(r => blockOf(r) === block)
     .sort((a, b) => (a.order || 0) - (b.order || 0) || (a.created || 0) - (b.created || 0));
 }
+const rangeText = (a, b) => a && b ? a + '–' + b : a ? a : 'до ' + b;
 const nextOrder = block => routineItems(block).reduce((m, x) => Math.max(m, x.order || 0), 0) + 1;
 const checksFor = d => { const c = S.by.rcheck.get('rcheck-' + d); return c ? c.done : {}; };
 function routineHTML(){
@@ -1158,8 +1241,11 @@ function routineHTML(){
     const items = routineItems(b.id);
     const done = items.filter(i => checks[i.id]).length;
     h += '<section class="rblock" style="--c:' + b.c + '"><div class="rb-head">';
-    if (UI.rEdit && !b.fixed){
+    if (UI.rEdit){
+      const bi = blocks.indexOf(b);
       h += '<input class="r-in rb-name" data-rb="' + esc(b.id) + '" value="' + esc(b.name) + '" aria-label="Название блока">' +
+        '<button class="mini" data-act="rb-move" data-id="' + esc(b.id) + '" data-dir="-1"' + (bi === 0 ? ' disabled' : '') + ' aria-label="Блок выше">' + ICON.up + '</button>' +
+        '<button class="mini" data-act="rb-move" data-id="' + esc(b.id) + '" data-dir="1"' + (bi === blocks.length - 1 ? ' disabled' : '') + ' aria-label="Блок ниже">' + ICON.down + '</button>' +
         '<button class="mini" data-act="rb-del" data-id="' + esc(b.id) + '" aria-label="Удалить блок">' + ICON.trash + '</button>';
     } else {
       h += '<h2>' + esc(b.name) + '</h2><span class="rb-prog">' + (items.length ? done + ' из ' + items.length : '') + '</span>';
@@ -1173,14 +1259,16 @@ function routineHTML(){
   h += '<div class="add-block">' + (UI.rAddBlock
     ? '<input class="r-in" data-rnewblock placeholder="Название, например «Утро»" enterkeyhint="done" aria-label="Название нового блока"><button class="pill" data-act="rb-add-ok">Добавить</button><button class="pill" data-act="rb-add-cancel">Отмена</button>'
     : '<button class="pill" data-act="rb-add">' + ICON.plus + 'Новый блок</button>') + '</div>';
-  if (!S.by.routine.size) h += '<p class="hint">Добавь пункты, которые повторяются каждый день: в блок «День» и в блок «Вечер». Галочки отмечаются на каждый день отдельно.</p>';
+  if (!blocks.length) h += '<p class="hint">Блоков пока нет. Нажми «Новый блок», чтобы добавить первый.</p>';
+  else if (!S.by.routine.size) h += '<p class="hint">Добавь пункты, которые повторяются каждый день. Галочки отмечаются на каждый день отдельно. Чтобы переименовать, переставить или удалить блоки, нажми «Изменить».</p>';
   return h;
 }
 function ritemHTML(it, checks, i, n, blocks){
   if (UI.rEdit){
     return '<li class="ritem edit" data-id="' + esc(it.id) + '">' +
       '<input class="r-in" data-rf="title" value="' + esc(it.title) + '" aria-label="Пункт">' +
-      '<input class="r-in r-tin" type="time" data-rf="time" value="' + esc(it.time || '') + '" aria-label="Время">' +
+      '<div class="r-times"><span>с</span><input class="r-in r-tin" type="time" data-rf="time" value="' + esc(it.time || '') + '" aria-label="Время начала">' +
+        '<span>до</span><input class="r-in r-tin" type="time" data-rf="end" value="' + esc(it.end || '') + '" aria-label="Время окончания"></div>' +
       '<div class="r-tools">' +
         '<button class="mini" data-act="ri-move" data-dir="-1"' + (i === 0 ? ' disabled' : '') + ' aria-label="Выше">' + ICON.up + '</button>' +
         '<button class="mini" data-act="ri-move" data-dir="1"' + (i === n - 1 ? ' disabled' : '') + ' aria-label="Ниже">' + ICON.down + '</button>' +
@@ -1192,7 +1280,7 @@ function ritemHTML(it, checks, i, n, blocks){
   return '<li class="ritem' + (on ? ' done' : '') + '" data-id="' + esc(it.id) + '">' +
     '<button class="check" data-act="ri-check" aria-pressed="' + on + '" aria-label="' + (on ? 'Снять отметку' : 'Отметить') + '">' + ICON.tick + '</button>' +
     '<button class="r-title" data-act="ri-check">' + esc(it.title) + '</button>' +
-    (it.time ? '<span class="r-time">' + esc(it.time) + '</span>' : '') + '</li>';
+    (it.time || it.end ? '<span class="r-time">' + esc(rangeText(it.time, it.end)) + '</span>' : '') + '</li>';
 }
 function routineCheck(id){
   const key = 'rcheck-' + UI.rDate;
@@ -1216,16 +1304,21 @@ function addRoutineItem(block, title){
 function addBlock(name){
   name = (name || '').trim();
   if (!name){ toast('Напиши название блока'); return; }
-  persistItem('rblock', { id: uuid(), name: name, order: Date.now(), created: Date.now() }, { silent: true });
+  const maxOrder = blocksList().reduce((m, b) => Math.max(m, b.order), -1);
+  persistItem('rblock', { id: uuid(), name: name, order: maxOrder + 1, created: Date.now() }, { silent: true });
   UI.rAddBlock = false; render(true);
 }
 
 /* ================= calendar ================= */
-function calIndex(){
+function calIndex(from, to){
   const idx = new Map();
-  const add = (d, x) => { if (!d) return; if (!idx.has(d)) idx.set(d, []); idx.get(d).push(x); };
-  S.by.event.forEach(e => add(e.date, { k: 'event', id: e.id, title: e.title, time: e.time, end: e.end, done: e.done, c: evColor(e.color), photo: e.photos.length > 0 }));
-  S.by.task.forEach(t => add(t.date, { k: 'task', id: t.id, title: t.title, time: t.time, end: null, done: t.done, c: 'var(--q' + t.q + ')', photo: photosOf(t).length > 0 }));
+  const add = (d, x) => { if (!d || d < from || d > to) return; if (!idx.has(d)) idx.set(d, []); idx.get(d).push(x); };
+  S.by.event.forEach(e => {
+    const base = { k: 'event', id: e.id, title: e.title, time: e.time, end: e.end, c: evColor(e.color), photo: e.photos.length > 0, rep: e.repeat };
+    if (!e.repeat){ add(e.date, Object.assign({ date: e.date, done: e.done }, base)); return; }
+    occurrences(e, from, to).forEach(d => add(d, Object.assign({ date: d, done: !!e.doneOn[d] }, base)));
+  });
+  S.by.task.forEach(t => add(t.date, { k: 'task', id: t.id, date: t.date, title: t.title, time: t.time, end: null, done: t.done, c: 'var(--q' + t.q + ')', photo: photosOf(t).length > 0 }));
   idx.forEach(list => list.sort((a, b) => (a.time || '') < (b.time || '') ? -1 : (a.time || '') > (b.time || '') ? 1 : 0));
   return idx;
 }
@@ -1244,15 +1337,20 @@ function calendarHTML(){
   const atNow = v === 'day' ? d === t : v === 'week' ? weekStart(d) === weekStart(t)
     : v === 'month' ? (dx.getFullYear() === tx.getFullYear() && dx.getMonth() === tx.getMonth()) : dx.getFullYear() === tx.getFullYear();
   h += dnavHTML(title, 'c', v === 'year' ? null : d, atNow);
-  const idx = calIndex();
+  let from = d, to = d;
+  if (v === 'week'){ from = weekStart(d); to = addDays(from, 6); }
+  else if (v === 'month'){ from = weekStart(ymd(new Date(dx.getFullYear(), dx.getMonth(), 1))); to = addDays(from, 41); }
+  else if (v === 'year'){ from = dx.getFullYear() + '-01-01'; to = dx.getFullYear() + '-12-31'; }
+  const idx = calIndex(from, to);
   return h + (v === 'day' ? dayView(d, idx) : v === 'week' ? weekView(d, idx) : v === 'month' ? monthView(d, idx) : yearView(d, idx));
 }
 function evRowHTML(x){
   const when = x.time ? x.time + (x.end ? '–' + x.end : '') : 'весь день';
   return '<li class="ev' + (x.done ? ' done' : '') + '" style="--c:' + x.c + '">' +
-    '<button class="check" data-act="item-check" data-k="' + x.k + '" data-id="' + esc(x.id) + '" aria-pressed="' + x.done + '" aria-label="' + (x.done ? 'Снять отметку' : 'Отметить выполненным') + '">' + ICON.tick + '</button>' +
-    '<button class="ev-body" data-act="open-item" data-k="' + x.k + '" data-id="' + esc(x.id) + '"><span class="ev-title">' + esc(x.title) + '</span>' +
-    '<span class="ev-meta"><span>' + when + '</span>' + (x.k === 'task' ? '<span class="ev-kind">задача</span>' : '') + (x.photo ? ICON.photo : '') + '</span></button></li>';
+    '<button class="check" data-act="item-check" data-k="' + x.k + '" data-id="' + esc(x.id) + '" data-date="' + x.date + '" aria-pressed="' + x.done + '" aria-label="' + (x.done ? 'Снять отметку' : 'Отметить выполненным') + '">' + ICON.tick + '</button>' +
+    '<button class="ev-body" data-act="open-item" data-k="' + x.k + '" data-id="' + esc(x.id) + '" data-date="' + x.date + '"><span class="ev-title">' + esc(x.title) + '</span>' +
+    '<span class="ev-meta"><span>' + when + '</span>' + (x.k === 'task' ? '<span class="ev-kind">задача</span>' : '') +
+    (x.rep ? '<span class="ev-rep" title="Повторяется ' + repText(x.rep) + '">' + ICON.repeat + repText(x.rep) + '</span>' : '') + (x.photo ? ICON.photo : '') + '</span></button></li>';
 }
 const HOUR = 56;
 function layoutDay(items){
@@ -1284,7 +1382,7 @@ function dayView(d, idx){
   }
   layoutDay(timed).forEach(x => {
     const top = x.s / 60 * HOUR, ht = Math.max(26, (x.e - x.s) / 60 * HOUR - 2);
-    h += '<button class="tl-ev' + (x.done ? ' done' : '') + '" style="--c:' + x.c + ';top:' + top + 'px;height:' + ht + 'px;left:calc(' + (x.col / x.cols * 100) + '% + 2px);width:calc(' + (100 / x.cols) + '% - 4px)" data-act="open-item" data-k="' + x.k + '" data-id="' + esc(x.id) + '">' +
+    h += '<button class="tl-ev' + (x.done ? ' done' : '') + '" style="--c:' + x.c + ';top:' + top + 'px;height:' + ht + 'px;left:calc(' + (x.col / x.cols * 100) + '% + 2px);width:calc(' + (100 / x.cols) + '% - 4px)" data-act="open-item" data-k="' + x.k + '" data-id="' + esc(x.id) + '" data-date="' + x.date + '">' +
       '<b>' + esc(x.title) + '</b><small>' + x.time + (x.end ? '–' + x.end : '') + '</small></button>';
   });
   if (d === today()){
@@ -1298,7 +1396,7 @@ function scrollTimeline(w){
   let m = 8 * 60;
   if (d === today()){ const n = new Date(); m = Math.max(0, n.getHours() * 60 + n.getMinutes() - 90); }
   else {
-    const first = (calIndex().get(d) || []).filter(x => x.time).map(x => toMin(x.time))[0];
+    const first = (calIndex(d, d).get(d) || []).filter(x => x.time).map(x => toMin(x.time))[0];
     if (first != null) m = Math.max(0, first - 30);
   }
   w.scrollTop = m / 60 * HOUR;
@@ -1356,9 +1454,11 @@ function yearView(d, idx){
   }
   return h + '</div>';
 }
-function eventCheck(id){
+function eventCheck(id, date){
   const e = S.by.event.get(id); if (!e) return;
-  const n = clone(e); n.done = !n.done;
+  const n = clone(e);
+  if (n.repeat && isDate(date)){ if (n.doneOn[date]) delete n.doneOn[date]; else n.doneOn[date] = true; }
+  else n.done = !n.done;
   persistItem('event', n);
 }
 
@@ -1544,14 +1644,16 @@ function mountSheet(label, inner){
   root.innerHTML = '<div class="sheet-wrap"><div class="backdrop" data-close="1"></div>' +
     '<div class="sheet" role="dialog" aria-modal="true" aria-label="' + label + '"><div class="grab" aria-hidden="true"></div>' + inner + '</div></div>';
   document.body.classList.add('locked');
-  requestAnimationFrame(() => requestAnimationFrame(() => { const w = $('.sheet-wrap', root); if (w) w.classList.add('open'); }));
+  const w = $('.sheet-wrap', root);
+  requestAnimationFrame(() => requestAnimationFrame(() => { if (w.isConnected && !w.dataset.closing) w.classList.add('open'); }));
   return root;
 }
 function unmountSheet(){
   document.body.classList.remove('locked');
   const w = $('#sheet-root .sheet-wrap'); if (!w) return;
+  w.dataset.closing = '1';
   w.classList.remove('open');
-  setTimeout(() => { if (w.isConnected && !w.classList.contains('open')) w.remove(); }, reduceMotion ? 0 : 260);
+  setTimeout(() => { if (w.isConnected) w.remove(); }, reduceMotion ? 0 : 260);
 }
 const headHTML = (ph, label) =>
   '<div class="s-head"><button class="check big" data-sact="done">' + ICON.tick + '</button>' +
@@ -1584,17 +1686,27 @@ function openTask(id, preset){
   $$('textarea', root).forEach(autosize);
   if (D.isNew) $('.title-input', root).focus();
 }
-function openEvent(id, preset){
+function openEvent(id, preset, occ){
   const src = id ? S.by.event.get(id) : null;
   if (id && !src) return;
   const t = src ? NORM.event(clone(src)) : blankEvent(preset);
-  D = { type: 'event', tf: 'title', t: t, orig: JSON.stringify(t), isNew: !src, busy: 0 };
+  const extra = {};
+  if (src && src.repeat){
+    const day = isDate(occ) ? occ : src.date;
+    t.date = day; t.done = !!src.doneOn[day];
+    extra.series = src.id; extra.occ = day; extra.base = clone(src);
+  }
+  D = Object.assign({ type: 'event', tf: 'title', t: t, orig: JSON.stringify(t), isNew: !src, busy: 0, added: [], dropped: [] }, extra);
   const root = mountSheet('Событие', headHTML('Название события', 'Название события') +
     '<div class="colors" role="radiogroup" aria-label="Цвет"></div>' +
     '<div class="when"><label class="fld"><span>Дата</span><input type="date" class="in-date"></label>' +
       '<label class="fld"><span>Начало</span><input type="time" class="in-time"></label>' +
       '<label class="fld"><span>Конец</span><input type="time" class="in-end"></label>' +
       '<button class="chip-btn" data-sact="allday">Весь день</button></div>' +
+    '<div class="when rep"><label class="fld"><span>Повтор</span><select class="in-rep">' + REPEATS.map(r => '<option value="' + r[0] + '">' + r[1] + '</option>').join('') + '</select></label>' +
+      '<label class="fld rep-until"><span>Повторять до</span><input type="date" class="in-until"></label>' +
+      '<button class="chip-btn rep-until" data-sact="no-until">Без конца</button></div>' +
+    '<p class="rep-info"></p>' +
     '<label class="fld block"><span>Описание</span><textarea class="in-note" rows="2" placeholder="Где, с кем, что взять"></textarea></label>' +
     photosBlock() + actionsHTML());
   $('.title-input', root).value = t.title;
@@ -1602,7 +1714,7 @@ function openEvent(id, preset){
   $('.in-date', root).value = t.date || '';
   $('.in-time', root).value = t.time || '';
   $('.in-end', root).value = t.end || '';
-  renderHeadCheck(); renderColors(); renderPhotos('main');
+  renderHeadCheck(); renderColors(); renderRep(); renderPhotos('main');
   $$('textarea', root).forEach(autosize);
   if (D.isNew) $('.title-input', root).focus();
 }
@@ -1625,6 +1737,22 @@ function openProduct(id){
   $('.in-qty', root).value = t.qty;
   renderPStatus();
   autosize($('.title-input', root));
+}
+function renderRep(){
+  if (!D || D.type !== 'event') return;
+  const t = D.t, root = $('#sheet-root');
+  const sel = $('.in-rep', root); if (!sel) return;
+  sel.value = t.repeat || '';
+  $$('.rep-until', root).forEach(el => { el.hidden = !t.repeat; });
+  $('.in-until', root).value = t.until || '';
+  let info = '';
+  if (D.series){
+    const s = S.by.event.get(D.series) || D.base;
+    info = 'Повторяется ' + repText(s.repeat) + ' с ' + dayLabel(s.date) + (s.until ? ' до ' + dayLabel(s.until) : '') + '. Открыт повтор на ' + dayLabel(D.occ) + '.';
+  } else if (t.repeat){
+    info = 'Будет повторяться ' + repText(t.repeat) + ', начиная с ' + dayLabel(t.date || today()) + (t.until ? ', до ' + dayLabel(t.until) : '') + '.';
+  }
+  const p = $('.rep-info', root); p.textContent = info; p.hidden = !info;
 }
 function renderHeadCheck(){
   const b = $('#sheet-root .check.big'); if (!b) return;
@@ -1687,7 +1815,7 @@ async function handleFiles(files, target){
     try{
       const id = await addPhotoFile(f);
       if (diary){ flushNote(); const e = diaryGet(target.slice(6)); e.photos.push(id); diarySave(e); }
-      else { const arr = D === draft ? photoArrOf(draft.t, target) : null; if (arr) arr.push(id); else removePhoto(id); }
+      else { const arr = D === draft ? photoArrOf(draft.t, target) : null; if (arr){ arr.push(id); (draft.added = draft.added || []).push(id); } else removePhoto(id); }
     }catch(err){
       toast(err && err.message === 'decode' ? 'Этот формат фото не открывается. Попробуй JPG или PNG.' : 'Не получилось сохранить фото. Освободи место на устройстве.');
     }finally{
@@ -1719,7 +1847,7 @@ function deletePhotoAt(target, idx){
     diarySave(e);
   } else {
     const arr = getPhotoArr(target); if (!arr) return;
-    const r = arr.splice(idx, 1)[0]; if (r) removePhoto(r);
+    const r = arr.splice(idx, 1)[0]; if (r && D) (D.dropped = D.dropped || []).push(r);
   }
   renderPhotos(target);
 }
@@ -1754,10 +1882,17 @@ function arm(btn, label, action){
   armTimer = setTimeout(() => { if (btn.isConnected){ btn.classList.remove('arm'); btn.innerHTML = old; } }, 3000);
 }
 
+function finishSheet(){
+  const ids = D ? (D.added || []).concat(D.dropped || []) : [];
+  D = null;
+  unmountSheet();
+  releasePhotos(ids);
+}
 function closeSheet(){
   if (!D) return;
   if (D.type === 'settings'){ D = null; unmountSheet(); return; }
   if (D.busy > 0){ toast('Подожди секунду, фото ещё сохраняется'); return; }
+  if (D.pending){ toast('Выбери вариант внизу'); const s = $('#sheet-root .s-actions'); if (s && s.scrollIntoView) s.scrollIntoView({ block: 'end' }); return; }
   const t = D.t;
   if (D.type === 'task'){
     const ps = $('#sheet-root .in-sub');
@@ -1778,10 +1913,21 @@ function closeSheet(){
     const empty = !t.title && !t.note.trim() && !t.photos.length;
     if (!(D.isNew && empty)){
       if (!t.title) t.title = 'Без названия';
-      if (!t.date) t.date = UI.cDate;
+      if (!t.date) t.date = D.occ || UI.cDate;
       if (!t.time) t.end = null;
       if (t.end && t.time && t.end <= t.time) t.end = null;
-      if (JSON.stringify(t) !== D.orig) persistItem('event', t);
+      if (!t.repeat) t.until = null;
+      if (t.until && t.until < t.date) t.until = null;
+      if (JSON.stringify(t) !== D.orig){
+        if (D.series){
+          const o = JSON.parse(D.orig);
+          if (JSON.stringify(Object.assign({}, t, { done: 0 })) === JSON.stringify(Object.assign({}, o, { done: 0 }))){
+            const s0 = clone(S.by.event.get(D.series) || D.base);   // only the tick changed: no need to ask
+            if (t.done) s0.doneOn[D.occ] = true; else delete s0.doneOn[D.occ];
+            persistItem('event', s0);
+          } else { showScope('save'); return; }
+        } else persistItem('event', asStored(t));
+      }
     }
   } else if (D.type === 'product'){
     t.name = t.name.trim() || JSON.parse(D.orig).name;
@@ -1792,8 +1938,74 @@ function closeSheet(){
     }
     if (JSON.stringify(t) !== D.orig) persistItem('product', t);
   }
-  D = null;
-  unmountSheet();
+  finishSheet();
+}
+function asStored(t){
+  const n = clone(t);
+  if (n.repeat){ n.doneOn = n.doneOn || {}; if (n.done) n.doneOn[n.date] = true; n.done = false; n.skip = n.skip || []; }
+  else { n.until = null; n.skip = []; n.doneOn = {}; }
+  return n;
+}
+function showScope(action){
+  D.pending = action;
+  const box = $('#sheet-root .s-actions'); if (!box) return;
+  box.className = 's-actions scope';
+  box.innerHTML = '<p class="scope-q">' + (action === 'delete' ? 'Это повторяющееся событие. Что удалить?' : 'Это повторяющееся событие. К чему применить изменения?') + '</p>' +
+    '<button class="scope-btn" data-sact="scope" data-s="one">Только ' + dayLabel(D.occ) + '</button>' +
+    '<button class="scope-btn" data-sact="scope" data-s="future">Этот день и все следующие</button>' +
+    '<button class="scope-btn" data-sact="scope" data-s="all">Все повторы</button>' +
+    '<button class="scope-cancel" data-sact="scope-cancel">' + (action === 'delete' ? 'Не удалять' : 'Вернуться к редактированию') + '</button>' +
+    (action === 'save' ? '<button class="scope-cancel" data-sact="discard">Закрыть без сохранения</button>' : '');
+  if (box.scrollIntoView) box.scrollIntoView({ block: 'end' });
+}
+function hideScope(){
+  D.pending = null;
+  const box = $('#sheet-root .s-actions'); if (box) box.outerHTML = actionsHTML();
+}
+function keepSeries(s){
+  if (s.until && s.until < s.date) removeItem('event', s.id);
+  else persistItem('event', s);
+}
+function applyScope(scope){
+  const t = D.t, occ = D.occ, cur = S.by.event.get(D.series);
+  const s = clone(cur || D.base);
+  if (scope === 'future' && occ <= s.date) scope = 'all';
+  if (D.pending === 'delete'){
+    if (scope === 'all') removeItem('event', s.id);
+    else if (scope === 'one'){ if (s.skip.indexOf(occ) < 0) s.skip.push(occ); delete s.doneOn[occ]; keepSeries(s); }
+    else { s.until = addDays(occ, -1); keepSeries(s); }
+    toast(scope === 'one' ? 'Удалено только ' + dayLabel(occ) : scope === 'future' ? 'Повторы с ' + dayLabel(occ) + ' удалены' : 'Все повторы удалены');
+    D.added = D.added || []; finishSheet(); return;
+  }
+  if (scope === 'one'){
+    persistItem('event', Object.assign(clone(t), { id: uuid(), repeat: null, until: null, skip: [], doneOn: {}, created: Date.now() }));
+    if (s.skip.indexOf(occ) < 0) s.skip.push(occ);
+    delete s.doneOn[occ];
+    keepSeries(s);
+  } else if (scope === 'future'){
+    const n = Object.assign(clone(t), { id: uuid(), created: Date.now() });
+    n.skip = s.skip.filter(x => x >= occ);
+    n.doneOn = {}; Object.keys(s.doneOn).forEach(k => { if (k >= occ) n.doneOn[k] = true; });
+    if (t.done) n.doneOn[t.date] = true; else delete n.doneOn[t.date];
+    persistItem('event', asStored(Object.assign(n, { done: false })));
+    s.until = addDays(occ, -1);
+    keepSeries(s);
+  } else {
+    const shift = diffDays(occ, t.date);
+    ['title', 'color', 'time', 'end', 'note', 'photos', 'repeat', 'until'].forEach(k => { s[k] = clone(t[k]); });
+    if (!s.repeat){ s.date = t.date; s.done = t.done; s.skip = []; s.doneOn = {}; s.until = null; }
+    else {
+      if (shift){
+        s.date = addDays(s.date, shift);
+        s.skip = s.skip.map(x => addDays(x, shift));
+        const moved = {}; Object.keys(s.doneOn).forEach(k => { moved[addDays(k, shift)] = true; }); s.doneOn = moved;
+      }
+      if (t.done) s.doneOn[t.date] = true; else delete s.doneOn[t.date];
+      if (s.until && s.until < s.date) s.until = null;
+    }
+    persistItem('event', s);
+  }
+  finishSheet();
 }
 const SHEET_KIND = { task: 'task', event: 'event', product: 'product' };
 
@@ -1818,14 +2030,19 @@ sheetRoot.addEventListener('click', e => {
   else if (a === 'status'){ t.status = b.dataset.s; if (t.status === 'out') t.buy = true; renderPStatus(); }
   else if (a === 'buy'){ t.buy = !t.buy; renderPStatus(); }
   else if (a === 'delete'){
+    if (D.type === 'event' && D.series){ showScope('delete'); return; }
     const kind = SHEET_KIND[D.type], id = t.id;
-    arm(b, 'Точно удалить?', () => { D = null; unmountSheet(); removeItem(kind, id); });
+    arm(b, 'Точно удалить?', () => { removeItem(kind, id); finishSheet(); });
   }
+  else if (a === 'scope') applyScope(b.dataset.s);
+  else if (a === 'scope-cancel') hideScope();
+  else if (a === 'discard'){ D.pending = null; finishSheet(); }
+  else if (a === 'no-until'){ t.until = null; renderRep(); }
   else if (a === 'sub-check'){ const s = subOf(b); if (s){ s.done = !s.done; renderSubs(); } }
   else if (a === 'sub-more'){ const s = subOf(b); if (s){ D.openSub = D.openSub === s.id ? null : s.id; renderSubs(); } }
   else if (a === 'sub-del'){
     const s = subOf(b); if (!s) return;
-    arm(b, 'Точно удалить?', () => { s.photos.forEach(removePhoto); D.t.subs = D.t.subs.filter(x => x !== s); D.openSub = null; renderSubs(); });
+    arm(b, 'Точно удалить?', () => { (D.dropped = D.dropped || []).push.apply(D.dropped, s.photos); D.t.subs = D.t.subs.filter(x => x !== s); D.openSub = null; renderSubs(); });
   }
 });
 sheetRoot.addEventListener('input', e => {
@@ -1841,7 +2058,9 @@ sheetRoot.addEventListener('input', e => {
 sheetRoot.addEventListener('change', e => {
   if (!D || !D.t) return;
   const el = e.target, t = D.t;
-  if (el.classList.contains('in-date')) t.date = el.value || null;
+  if (el.classList.contains('in-date')){ t.date = el.value || null; renderRep(); }
+  else if (el.classList.contains('in-rep')){ t.repeat = el.value || null; if (!t.repeat) t.until = null; renderRep(); }
+  else if (el.classList.contains('in-until')){ t.until = el.value || null; renderRep(); }
   else if (el.classList.contains('in-time')) t.time = el.value || null;
   else if (el.classList.contains('in-end')) t.end = el.value || null;
   else if (el.classList.contains('in-cat')){
@@ -1980,10 +2199,11 @@ view.addEventListener('click', e => {
     case 'ri-move': if (ri) routineMove(ri.dataset.id, +b.dataset.dir); break;
     case 'ri-del': if (ri){ const id = ri.dataset.id; arm(b, 'Удалить?', () => removeItem('routine', id)); } break;
     case 'rb-del': {
-      const id = b.dataset.id;
-      arm(b, 'Удалить блок?', () => { routineItems(id).forEach(x => removeItem('routine', x.id, { silent: true })); removeItem('rblock', id); });
+      const id = b.dataset.id, n = routineItems(id).length;
+      arm(b, n ? 'Удалить вместе с пунктами?' : 'Удалить блок?', () => blockDelete(id));
       break;
     }
+    case 'rb-move': blockMove(b.dataset.id, +b.dataset.dir); break;
     case 'rb-add': UI.rAddBlock = true; render(true); { const i = $('[data-rnewblock]'); if (i) i.focus(); } break;
     case 'rb-add-ok': addBlock(($('[data-rnewblock]') || {}).value); break;
     case 'rb-add-cancel': UI.rAddBlock = false; render(true); break;
@@ -1995,8 +2215,8 @@ view.addEventListener('click', e => {
     case 'ev-new': openEvent(null, { date: UI.cDate }); break;
     case 'ev-new-on': openEvent(null, { date: b.dataset.date }); break;
     case 'ev-new-at': openEvent(null, { date: UI.cDate, time: b.dataset.time }); break;
-    case 'open-item': if (b.dataset.k === 'task') openTask(b.dataset.id); else openEvent(b.dataset.id); break;
-    case 'item-check': if (b.dataset.k === 'task') toggleDone(b.dataset.id); else eventCheck(b.dataset.id); break;
+    case 'open-item': if (b.dataset.k === 'task') openTask(b.dataset.id); else openEvent(b.dataset.id, null, b.dataset.date); break;
+    case 'item-check': if (b.dataset.k === 'task') toggleDone(b.dataset.id); else eventCheck(b.dataset.id, b.dataset.date); break;
     // diary
     case 'd-goto': flushNote(); UI.dDate = b.dataset.date; UI.emoOpen = null; render(true); window.scrollTo(0, 0); break;
     case 'emo-a': case 'emo-b': case 'emo-c': case 'emo-rm': case 'emo-x': emoAct(act, b); break;
@@ -2035,14 +2255,15 @@ view.addEventListener('change', e => {
     if (!cur) return;
     const it = clone(cur), f = el.dataset.rf;
     if (f === 'title'){ const v = el.value.trim(); if (!v){ el.value = it.title; return; } it.title = v; persistItem('routine', it, { silent: true }); }
-    else if (f === 'time'){ it.time = el.value || null; persistItem('routine', it, { silent: true }); }
+    else if (f === 'time' || f === 'end'){ it[f] = el.value || null; persistItem('routine', it, { silent: true }); }
     else if (f === 'block'){ it.block = el.value; it.order = nextOrder(el.value); persistItem('routine', it, { silent: true }); render(true); }
     return;
   }
   if (el.classList.contains('rb-name')){
-    const cur = S.by.rblock.get(el.dataset.rb); if (!cur) return;
-    const v = el.value.trim(); if (!v){ el.value = cur.name; return; }
-    const bl = clone(cur); bl.name = v; persistItem('rblock', bl, { silent: true }); return;
+    const id = el.dataset.rb, b = blocksList().find(x => x.id === id); if (!b) return;
+    const v = el.value.trim(); if (!v){ el.value = b.name; return; }
+    if (v !== b.name) saveBlock(id, { name: v });
+    return;
   }
   if (el.hasAttribute('data-scat')){ UI.sCat = el.value; setPref('sCat', UI.sCat); }
 });
